@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Construction Management Tool Design System
+   Professional, data-dense, construction-industry focused
+   All colors in HSL format
+*/
+
+@layer base {
+  :root {
+    /* Core backgrounds - Neutral off-white */
+    --background: 220 14% 96%;
+    --foreground: 220 13% 18%;
+
+    /* Cards & surfaces - Pure white for contrast */
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+
+    /* Primary - Muted blue for professionalism */
+    --primary: 217 33% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Light gray */
+    --secondary: 220 13% 91%;
+    --secondary-foreground: 220 13% 18%;
+
+    /* Muted - Subtle backgrounds */
+    --muted: 220 13% 94%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent - Removed bright orange, use muted primary */
+    --accent: 217 33% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive - Muted red */
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success - Muted green */
+    --success: 142 52% 40%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Muted amber */
+    --warning: 38 70% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders & inputs - Subtle gray */
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 217 33% 45%;
+
+    --radius: 0.375rem; /* Reduced from 1rem for more professional look */
+
+    /* Sidebar - Dark gray professional look */
+    --sidebar-background: 220 13% 18%;
+    --sidebar-foreground: 220 13% 85%;
+    --sidebar-primary: 217 33% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 25%;
+    --sidebar-accent-foreground: 220 13% 95%;
+    --sidebar-border: 220 13% 25%;
+    --sidebar-ring: 217 33% 45%;
+    --sidebar-muted: 220 13% 30%;
+
+    /* Chart colors - Muted palette */
+    --chart-1: 217 33% 45%;
+    --chart-2: 142 52% 40%;
+    --chart-3: 38 70% 50%;
+    --chart-4: 0 65% 50%;
+    --chart-5: 280 45% 50%;
+    --chart-6: 195 50% 45%;
+  }
+
+  .dark {
+    --background: 220 13% 9%;
+    --foreground: 220 13% 95%;
+
+    --card: 220 13% 12%;
+    --card-foreground: 220 13% 95%;
+
+    --popover: 220 13% 12%;
+    --popover-foreground: 220 13% 95%;
+
+    --primary: 217 33% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 13% 20%;
+    --secondary-foreground: 220 13% 90%;
+
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 60%;
+
+    --accent: 217 33% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 52% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 70% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 13% 20%;
+    --input: 220 13% 20%;
+    --ring: 217 33% 55%;
+
+    --sidebar-background: 220 13% 11%;
+    --sidebar-foreground: 220 13% 85%;
+    --sidebar-primary: 217 33% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 18%;
+    --sidebar-accent-foreground: 220 13% 95%;
+    --sidebar-border: 220 13% 18%;
+    --sidebar-ring: 217 33% 55%;
+    --sidebar-muted: 220 13% 25%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    line-height: 1.6;
+  }
+
+  /* Typography improvements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+    line-height: 1.3;
+  }
+
+  /* Table improvements */
+  table {
+    @apply text-sm;
+  }
+
+  th {
+    @apply font-semibold;
+    letter-spacing: 0.01em;
+  }
+
+  td {
+    @apply py-3;
+  }
+}
+
+@layer utilities {
+  /* Shadow utilities - Subtle, professional */
+  .shadow-card {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .shadow-modal {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+}
