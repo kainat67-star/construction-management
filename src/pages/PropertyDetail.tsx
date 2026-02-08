@@ -1,23 +1,26 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { properties, PropertyImage, PropertyDocument } from "@/data/properties";
+import { getProperties, Property } from "@/data/properties";
 import { Button } from "@/components/ui/button";
-import { PropertyImageGallery } from "@/components/properties/PropertyImageGallery";
-import { PropertyMap } from "@/components/properties/PropertyMap";
-import { PropertyImages } from "@/components/properties/PropertyImages";
-import { PropertyDocuments } from "@/components/properties/PropertyDocuments";
-import { PropertyNotes } from "@/components/properties/PropertyNotes";
-import { PropertyTimeline } from "@/components/properties/PropertyTimeline";
-import { PropertyLedger } from "@/components/properties/PropertyLedger";
-import { LedgerEntry } from "@/data/properties";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { getDailyLogs } from "@/data/dailyLogs";
+import { PropertyImageGallery } from "@/components/properties/PropertyImageGallery";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const properties = getProperties();
   const property = properties.find((p) => p.id === id);
 
   if (!property) {
@@ -34,346 +37,382 @@ const PropertyDetail = () => {
   }
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(value);
+    new Intl.NumberFormat("en-PK", {
+      style: "currency",
+      currency: "PKR",
+      maximumFractionDigits: 0,
+    }).format(value);
 
   const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
-  const handleAddImage = (category: PropertyImage["category"], file: File) => {
-    // UI only - create a mock image URL
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      // In a real app, this would upload to a server
-      // For now, we'll just show a message
-      console.log("Image would be uploaded:", category, file.name);
-    };
-    reader.readAsDataURL(file);
-  };
+  // Get expenses linked to this property from daily logs
+  const dailyLogs = getDailyLogs();
+  const propertyExpenses = dailyLogs
+    .flatMap(log => 
+      log.expenses
+        .filter(exp => exp.propertyId === property.id)
+        .map(exp => ({
+          ...exp,
+          date: log.date,
+        }))
+    )
+    .sort((a, b) => b.date.localeCompare(a.date));
 
-  const handleDeleteImage = (imageId: string) => {
-    // UI only - in a real app, this would delete from server
-    console.log("Image would be deleted:", imageId);
-  };
+  // Calculate total project cost
+  const totalProjectCost = property.purchasePrice + propertyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
-  const handleAddDocument = (document: Omit<PropertyDocument, "id" | "uploadedAt">) => {
-    // UI only - in a real app, this would upload to server
-    console.log("Document would be uploaded:", document);
-  };
+  // Calculate partner investments
+  const totalPartnerInvestments = (property.partners || []).reduce(
+    (sum, partner) => sum + (partner.investmentAmount || 0),
+    0
+  );
 
-  const handleDeleteDocument = (documentId: string) => {
-    // UI only - in a real app, this would delete from server
-    console.log("Document would be deleted:", documentId);
-  };
-
-  const handleSaveNotes = (notes: string) => {
-    // UI only - in a real app, this would save to server
-    console.log("Notes would be saved:", notes);
-  };
-
-  const handleAddLedgerEntry = (entry: Omit<LedgerEntry, "id">) => {
-    // UI only - in a real app, this would save to server
-    console.log("Ledger entry would be added:", entry);
-  };
-
-  const handleDeleteLedgerEntry = (entryId: string) => {
-    // UI only - in a real app, this would delete from server
-    console.log("Ledger entry would be deleted:", entryId);
-  };
-
-  const hasOwnershipInfo = property.ownershipType || (property.partners && property.partners.length > 0);
-  const isLandPlusConstruction = property.category === "Land + Construction";
-  const isRentType = property.type === "Rent";
-  const hasAgentInfo = property.agentInformation && (property.agentInformation.name || property.agentInformation.phoneNumber || property.agentInformation.commissionAmount || property.agentInformation.commissionPercentage);
-  const hasTimelineEvents = property.timelineEvents && property.timelineEvents.length > 0;
+  // Calculate financial status
+  const totalExpenses = propertyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const netPosition = totalPartnerInvestments - totalProjectCost;
 
   return (
     <AppLayout title="Property Details">
-      {/* Back Button and Actions */}
-      <div className="mb-6 flex items-center justify-between">
-        <Button variant="ghost" className="gap-2 text-sm" onClick={() => navigate("/properties")}>
-          <ArrowLeft className="h-4 w-4" />
-          Back to Properties
-        </Button>
-        <Button variant="default" className="gap-2" onClick={() => navigate(`/accounts/${property.id}`)}>
-          <BookOpen className="h-4 w-4" />
-          Open Accounts
-        </Button>
-      </div>
-
-      <div className="space-y-6">
-        {/* Section 1: Property Image Gallery (Featured at Top) */}
-        <PropertyImageGallery images={property.images || []} />
-
-        {/* Section 2: Key Property Information (Immediately Below Images) */}
-        <div className="space-y-4 pb-4 border-b border-border">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground mb-2">{property.name}</h1>
-            <p className="text-base text-muted-foreground mb-4">{property.location}</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 mb-4">
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-border/50">
+          <div className="space-y-2">
+            <Button
+              variant="ghost"
+              className="gap-2 -ml-2"
+              onClick={() => navigate("/properties")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Properties
+            </Button>
             <div>
-              <span className="text-xs text-muted-foreground mr-1.5">Category:</span>
-              <Badge variant="info" className="text-xs font-normal">{property.category}</Badge>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground mr-1.5">Type:</span>
-              <Badge variant="secondary" className="text-xs font-normal">{property.type}</Badge>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground mr-1.5">Status:</span>
-              <Badge variant="success" className="text-xs font-normal">{property.status}</Badge>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-border">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">Purchase Date</p>
-              <p className="text-sm font-medium">{formatDate(property.purchaseDate)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">Purchase Price</p>
-              <p className="text-sm font-medium">{formatCurrency(property.purchasePrice)}</p>
+              <h1 className="text-4xl font-bold tracking-tight text-foreground mb-2">{property.name}</h1>
+              <p className="text-lg text-muted-foreground font-medium">{property.location}</p>
             </div>
           </div>
         </div>
 
-        {/* Section 3: Property Location Map */}
-        <PropertyMap location={property.location} propertyName={property.name} />
+        {/* Property Images Gallery */}
+        {property.images && property.images.length > 0 && (
+          <Card className="border-border/50 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl font-bold">Property Images</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PropertyImageGallery images={property.images} />
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Section 4: Ownership & Partner Information */}
-        {hasOwnershipInfo && (
-          <div className="border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-border">Ownership & Partner Information</h2>
-            
-            <div className="space-y-3">
-              {property.ownershipType && (
+        {/* Detailed Property Information */}
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl font-bold">Property Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Ownership Type</p>
-                  <p className="text-sm font-medium">{property.ownershipType}</p>
+                  <p className="text-sm text-muted-foreground mb-2">Category</p>
+                  <Badge variant="secondary" className="text-base">
+                    {property.category}
+                  </Badge>
                 </div>
-              )}
-
-              {property.ownershipType === "Joint" && property.partners && property.partners.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2">Partners</p>
-                  <div className="space-y-2">
-                    {property.partners.map((partner, index) => (
-                      <div key={index} className="p-3 border border-border bg-muted/30 rounded-sm">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium">{partner.name}</p>
-                            {partner.sharePercentage !== undefined && (
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                Ownership Share: {partner.sharePercentage}%
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                  <p className="text-sm text-muted-foreground mb-2">Type</p>
+                  <Badge variant="secondary" className="text-base">
+                    {property.type}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Status</p>
+                  <Badge variant="outline" className="text-base">
+                    {property.status}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Purchase Date</p>
+                  <p className="text-base font-medium">{formatDate(property.purchaseDate)}</p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Purchase Price</p>
+                    <p className="text-2xl font-bold">{formatCurrency(property.purchasePrice)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Ownership Type</p>
+                    <p className="text-base font-medium">
+                      {property.ownershipType || "Not specified"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Construction Details */}
+              {property.constructionDetails && (
+                <div className="pt-4 border-t">
+                  <h3 className="text-lg font-semibold mb-4">Construction Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Construction Start Date</p>
+                      <p className="text-base font-medium">
+                        {formatDate(property.constructionDetails.constructionStartDate)}
+                      </p>
+                    </div>
+                    {property.constructionDetails.expectedCompletionDate && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Expected Completion Date</p>
+                        <p className="text-base font-medium">
+                          {formatDate(property.constructionDetails.expectedCompletionDate)}
+                        </p>
                       </div>
-                    ))}
+                    )}
+                    {property.constructionDetails.contractorName && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Contractor Name</p>
+                        <p className="text-base font-medium">
+                          {property.constructionDetails.contractorName}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {property.ownershipType === "Single" && (
-                <p className="text-xs text-muted-foreground">This property is owned by a single owner.</p>
+              {/* Rental Details */}
+              {property.rentalDetails && (
+                <div className="pt-4 border-t">
+                  <h3 className="text-lg font-semibold mb-4">Rental Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Tenant Name</p>
+                      <p className="text-base font-medium">{property.rentalDetails.tenantName}</p>
+                    </div>
+                    {property.rentalDetails.tenantPhoneNumber && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Tenant Phone</p>
+                        <p className="text-base font-medium">
+                          {property.rentalDetails.tenantPhoneNumber}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Monthly Rent</p>
+                      <p className="text-base font-semibold">
+                        {formatCurrency(property.rentalDetails.monthlyRentAmount)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Rent Due Date</p>
+                      <p className="text-base font-medium">
+                        Day {property.rentalDetails.rentDueDate} of each month
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              {property.notes && (
+                <div className="pt-4 border-t">
+                  <h3 className="text-lg font-semibold mb-2">Notes</h3>
+                  <p className="text-base text-foreground whitespace-pre-wrap">{property.notes}</p>
+                </div>
               )}
             </div>
-          </div>
-        )}
+          </CardContent>
+        </Card>
 
-        {/* Section 5: Construction Details (Conditional - Only for Land + Construction) */}
-        {isLandPlusConstruction && (
-          <div className="border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-border">Construction Details</h2>
-            
-            {property.constructionDetails ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Construction Start Date</p>
-                  <p className="text-sm font-medium">
-                    {formatDate(property.constructionDetails.constructionStartDate)}
-                  </p>
+        {/* Partner/Investor Information */}
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl font-bold">
+              {property.partners && property.partners.length > 0
+                ? "Partners & Investors"
+                : "Ownership Information"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {property.partners && property.partners.length > 0 ? (
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-base">Partner Name</TableHead>
+                        <TableHead className="text-base">Investment Amount</TableHead>
+                        <TableHead className="text-base">Share Percentage</TableHead>
+                        <TableHead className="text-base">Investment Share</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {property.partners.map((partner, index) => {
+                        const investmentShare =
+                          totalPartnerInvestments > 0
+                            ? ((partner.investmentAmount || 0) / totalPartnerInvestments) * 100
+                            : 0;
+                        return (
+                          <TableRow key={index}>
+                            <TableCell className="text-base font-medium">
+                              {partner.name}
+                            </TableCell>
+                            <TableCell className="text-base font-semibold">
+                              {formatCurrency(partner.investmentAmount || 0)}
+                            </TableCell>
+                            <TableCell className="text-base">
+                              {partner.sharePercentage
+                                ? `${partner.sharePercentage}%`
+                                : "-"}
+                            </TableCell>
+                            <TableCell className="text-base">
+                              {investmentShare > 0
+                                ? `${investmentShare.toFixed(1)}%`
+                                : "-"}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
-
-                {property.constructionDetails.expectedCompletionDate && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Expected Completion Date</p>
-                    <p className="text-sm font-medium">
-                      {formatDate(property.constructionDetails.expectedCompletionDate)}
+                <div className="pt-4 border-t space-y-3">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg font-semibold">Total Partner Investments</p>
+                    <p className="text-2xl font-bold">
+                      {formatCurrency(totalPartnerInvestments)}
                     </p>
                   </div>
-                )}
-
-                {property.constructionDetails.contractorName && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Contractor Name</p>
-                    <p className="text-sm font-medium">
-                      {property.constructionDetails.contractorName}
+                  <div className="flex justify-between items-center">
+                    <p className="text-base text-muted-foreground">Number of Partners</p>
+                    <p className="text-lg font-semibold">
+                      {property.partners.length} {property.partners.length === 1 ? "Partner" : "Partners"}
                     </p>
                   </div>
-                )}
+                </div>
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">No construction details available.</p>
-            )}
-
-            <div className="mt-4 p-3 bg-muted/30 border border-border">
-              <p className="text-xs font-medium mb-1.5">Construction Cost Handling</p>
-              <ul className="text-xs text-muted-foreground space-y-0.5 list-disc list-inside">
-                <li>Construction expenses appear in the Property Ledger</li>
-                <li>Ledger entries may be tagged as: Land Cost, Construction Cost, or Other Expense</li>
-                <li>Construction images are stored under: Construction Progress and After Completion</li>
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {/* Section 6: Rental Details (Conditional - Only for Rent type) */}
-        {isRentType && (
-          <div className="border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-border">Rental Details</h2>
-            
-            {property.rentalDetails ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Tenant Name</p>
-                  <p className="text-sm font-medium">{property.rentalDetails.tenantName}</p>
-                </div>
-
-                {property.rentalDetails.tenantCNIC && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Tenant CNIC</p>
-                    <p className="text-sm font-medium">{property.rentalDetails.tenantCNIC}</p>
-                  </div>
-                )}
-
-                {property.rentalDetails.tenantPhoneNumber && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Tenant Phone Number</p>
-                    <p className="text-sm font-medium">{property.rentalDetails.tenantPhoneNumber}</p>
-                  </div>
-                )}
-
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Monthly Rent Amount</p>
-                  <p className="text-sm font-medium">
-                    {formatCurrency(property.rentalDetails.monthlyRentAmount)}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Rent Due Date</p>
-                  <p className="text-sm font-medium">
-                    Day {property.rentalDetails.rentDueDate} of each month
-                  </p>
-                </div>
-
-                {property.rentalDetails.securityAdvanceAmount && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Security / Advance Amount</p>
-                    <p className="text-sm font-medium">
-                      {formatCurrency(property.rentalDetails.securityAdvanceAmount)}
-                    </p>
-                  </div>
-                )}
+              <div className="py-4">
+                <p className="text-base text-muted-foreground">
+                  This property is owned by a single owner. No partner information available.
+                </p>
               </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">No rental details available.</p>
             )}
+          </CardContent>
+        </Card>
 
-            <div className="mt-4 p-3 bg-muted/30 border border-border">
-              <p className="text-xs font-medium mb-1">Rental Income & Expenses</p>
-              <p className="text-xs text-muted-foreground">
-                Rental income and rental expenses are shown in the Property Ledger.
+        {/* Expense Report */}
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl font-bold">Expense Report</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {propertyExpenses.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8 text-base">
+                No expenses linked to this property yet.
               </p>
-            </div>
-          </div>
-        )}
-
-        {/* Section 7: Agent / Dealer Information (Optional) */}
-        {hasAgentInfo && (
-          <div className="border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-border">Agent / Dealer Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Agent / Dealer Name</p>
-                <p className="text-sm font-medium">{property.agentInformation.name}</p>
+            ) : (
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-base">Date</TableHead>
+                        <TableHead className="text-base">Description</TableHead>
+                        <TableHead className="text-base">Amount</TableHead>
+                        <TableHead className="text-base">Payment Method</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {propertyExpenses.map((expense) => (
+                        <TableRow key={expense.id}>
+                          <TableCell className="text-base">
+                            {formatDate(expense.date)}
+                          </TableCell>
+                          <TableCell className="text-base">{expense.description}</TableCell>
+                          <TableCell className="text-base font-semibold">
+                            {formatCurrency(expense.amount)}
+                          </TableCell>
+                          <TableCell className="text-base">
+                            {expense.paymentMethod}
+                            {expense.bankName && ` (${expense.bankName})`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="pt-4 border-t">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg font-semibold">Total Expenses</p>
+                    <p className="text-2xl font-bold text-destructive">
+                      {formatCurrency(totalExpenses)}
+                    </p>
+                  </div>
+                </div>
               </div>
+            )}
+          </CardContent>
+        </Card>
 
-              {property.agentInformation.phoneNumber && (
+        {/* Financial Status */}
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl font-bold">Overall Financial Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Phone Number</p>
-                  <p className="text-sm font-medium">{property.agentInformation.phoneNumber}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Purchase Price</p>
+                  <p className="text-2xl font-bold">{formatCurrency(property.purchasePrice)}</p>
                 </div>
-              )}
-
-              {property.agentInformation.commissionAmount && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Commission Amount</p>
-                  <p className="text-sm font-medium">
-                    {formatCurrency(property.agentInformation.commissionAmount)}
+                  <p className="text-sm text-muted-foreground mb-1">Total Expenses</p>
+                  <p className="text-2xl font-bold text-destructive">
+                    {formatCurrency(totalExpenses)}
                   </p>
                 </div>
-              )}
-
-              {property.agentInformation.commissionPercentage && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Commission Percentage</p>
-                  <p className="text-sm font-medium">
-                    {property.agentInformation.commissionPercentage}%
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-1">Total Project Cost</p>
+                  <p className="text-2xl font-bold">{formatCurrency(totalProjectCost)}</p>
+                </div>
+                {property.partners && property.partners.length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Total Partner Investments</p>
+                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                      {formatCurrency(totalPartnerInvestments)}
+                    </p>
+                  </div>
+                )}
+              </div>
+              {property.partners && property.partners.length > 0 && (
+                <div className="pt-4 border-t">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg font-semibold">Net Position</p>
+                    <p
+                      className={`text-3xl font-bold ${
+                        netPosition >= 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {formatCurrency(Math.abs(netPosition))}
+                      {netPosition >= 0 ? " (Surplus)" : " (Deficit)"}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {/* Section 8: Documents & Bills */}
-        <div className="border border-border bg-card p-5">
-          <PropertyDocuments
-            documents={property.documents || []}
-            onAddDocument={handleAddDocument}
-            onDeleteDocument={handleDeleteDocument}
-          />
-        </div>
-
-        {/* Section 9: Property Images (Detailed Management) */}
-        <div className="border border-border bg-card p-5">
-          <PropertyImages
-            images={property.images || []}
-            onAddImage={handleAddImage}
-            onDeleteImage={handleDeleteImage}
-          />
-        </div>
-
-        {/* Section 10: Maintenance & Notes */}
-        <div className="border border-border bg-card p-5">
-          <PropertyNotes
-            notes={property.notes || ""}
-            onSaveNotes={handleSaveNotes}
-          />
-        </div>
-
-        {/* Section 11: Property Ledger */}
-        <div className="border border-border bg-card p-5">
-          <PropertyLedger
-            entries={property.ledgerEntries || []}
-            documents={property.documents || []}
-            images={property.images || []}
-            onAddEntry={handleAddLedgerEntry}
-            onDeleteEntry={handleDeleteLedgerEntry}
-          />
-        </div>
-
-        {/* Section 12: Property Timeline / Activity History */}
-        {hasTimelineEvents && (
-          <div className="border border-border bg-card p-5">
-            <PropertyTimeline events={property.timelineEvents || []} />
-          </div>
-        )}
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );

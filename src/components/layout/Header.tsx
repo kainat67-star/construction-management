@@ -1,139 +1,122 @@
-import { ChevronDown, Calendar, Download, Bell, Menu, MoreVertical } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, Building2, BookOpen, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
-  title: string;
-  onMenuClick?: () => void;
+  title?: string;
 }
 
-const properties = [
-  "All Properties",
-  "Downtown Office Complex",
-  "Riverside Apartments",
-  "Industrial Park A",
-  "Commercial Plaza",
+const navItems = [
+  { icon: BookOpen, label: "Accounts", href: "/accounts" },
+  { icon: Building2, label: "Properties", href: "/properties" },
 ];
 
-const dateRanges = ["Monthly", "Quarterly", "Yearly"];
-
-export function Header({ title, onMenuClick }: HeaderProps) {
+export function Header({ title }: HeaderProps) {
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  useEffect(() => {
+    const email = localStorage.getItem("userEmail") || "";
+    setUserEmail(email);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userEmail");
+    navigate("/login");
+  };
+
+  // Get user initial from email
+  const getUserInitial = () => {
+    if (userEmail) {
+      return userEmail.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
+  // Get display name from email (part before @)
+  const getDisplayName = () => {
+    if (userEmail) {
+      const namePart = userEmail.split("@")[0];
+      // Capitalize first letter and format
+      return namePart.charAt(0).toUpperCase() + namePart.slice(1);
+    }
+    return "User";
+  };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 sm:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center gap-3 sm:gap-4">
-        {/* Mobile and Tablet Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onMenuClick}
-          className="h-9 w-9 lg:hidden"
-        >
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Open menu</span>
-        </Button>
-        <h1 className="text-base sm:text-lg font-semibold text-foreground truncate">{title}</h1>
+    <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center border-b border-border/30 bg-card/60 backdrop-blur-xl px-2 sm:px-4 md:px-6 relative">
+      {/* Logo - Left */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold text-foreground tracking-tight leading-tight">Construction</span>
+            <span className="text-[8px] sm:text-[10px] md:text-xs text-muted-foreground font-medium leading-tight">Hub</span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Desktop Filters */}
-        {!isMobile && (
-          <>
-            {/* Property Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 font-normal hidden md:flex">
-                  <span className="max-w-[180px] truncate">All Properties</span>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover">
-                {properties.map((property) => (
-                  <DropdownMenuItem key={property} className="cursor-pointer">
-                    {property}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+      {/* Navigation Bar - Center */}
+      <nav className="flex items-center gap-0.5 sm:gap-1 absolute left-1/2 transform -translate-x-1/2">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.href || 
+            (item.href === "/properties" && location.pathname.startsWith("/properties")) ||
+            (item.href === "/accounts" && location.pathname.startsWith("/accounts"));
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
-            {/* Date Range Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 font-normal hidden lg:flex">
-                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span>Monthly</span>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover">
-                {dateRanges.map((range) => (
-                  <DropdownMenuItem key={range} className="cursor-pointer">
-                    {range}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        )}
+      {/* Notification & Profile - Right */}
+      <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 ml-auto">
+        {/* Notification Button */}
+        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-muted/50">
+          <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+        </Button>
 
-        {/* Theme Toggle */}
-        <ThemeToggle />
+        {/* Profile */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 flex items-center justify-center">
+            <span className="text-xs sm:text-sm font-semibold text-foreground">{getUserInitial()}</span>
+          </div>
+          <div className="hidden md:flex flex-col">
+            <span className="text-sm font-semibold text-foreground">{getDisplayName()}</span>
+            <span className="text-xs text-muted-foreground">Admin</span>
+          </div>
+        </div>
 
-        {/* Mobile Menu with all actions */}
-        {isMobile ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <MoreVertical className="h-5 w-5" />
-                <span className="sr-only">More options</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="cursor-pointer">
-                <Calendar className="mr-2 h-4 w-4" />
-                <span>Monthly</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Download className="mr-2 h-4 w-4" />
-                <span>Export</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Bell className="mr-2 h-4 w-4" />
-                <span>Notifications</span>
-                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
-                  3
-                </span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <>
-            {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative h-9 w-9">
-              <Bell className="h-5 w-5 text-muted-foreground" />
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-medium text-accent-foreground">
-                3
-              </span>
-            </Button>
-
-            {/* Export Button */}
-            <Button className="gap-2 bg-primary hover:bg-primary/90 hidden sm:flex">
-              <Download className="h-4 w-4" />
-              <span className="hidden lg:inline">Export</span>
-            </Button>
-          </>
-        )}
+        {/* Sign Out Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="h-8 sm:h-9 gap-1 sm:gap-2 text-muted-foreground hover:text-foreground px-2 sm:px-3"
+        >
+          <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden lg:inline">Sign Out</span>
+        </Button>
       </div>
     </header>
   );

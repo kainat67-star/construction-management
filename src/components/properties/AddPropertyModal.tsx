@@ -1,5 +1,5 @@
 import { useForm, useFieldArray } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -22,49 +22,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Property, Partner } from "@/data/properties";
+import { getBanks } from "@/data/banks";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, X, Image as ImageIcon, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { PropertyImage } from "@/data/properties";
 
 const partnerSchema = z.object({
   name: z.string().min(1, "Partner name is required"),
+  investmentAmount: z.number().min(0).optional(),
   sharePercentage: z.number().min(0).max(100).optional(),
 });
 
 const propertyFormSchema = z.object({
-  name: z.string().min(1, "Property name or code is required"),
-  location: z.string().min(1, "Location or area is required"),
-  category: z.enum(["Land Only", "Built House (Purchased)", "Land + Construction"], {
-    required_error: "Please select a property category",
-  }),
-  type: z.enum(["Sale", "Rent"], {
-    required_error: "Please select a property type",
-  }),
-  status: z.enum(["Ongoing", "Sold", "Rented"], {
-    required_error: "Please select a property status",
-  }),
-  purchaseDate: z.date({
-    required_error: "Purchase date is required",
-  }),
-  purchasePrice: z.number().min(1, "Purchase price must be greater than 0"),
+  name: z.string().min(1, "Property name is required"),
+  propertyType: z.enum(["House", "Plaza", "Commercial", "Plot", "Other"]).optional(),
+  location: z.string().min(1, "Location is required"),
+  projectStartDate: z.date().optional(),
+  purchasePrice: z.number().min(0, "Amount must be 0 or greater"),
+  paymentMethod: z.enum(["Cash", "Bank"]).optional(),
+  bankName: z.string().optional(),
   ownershipType: z.enum(["Single", "Joint"]).optional(),
   partners: z.array(partnerSchema).optional(),
-  constructionStartDate: z.date().optional(),
-  expectedCompletionDate: z.date().optional(),
-  contractorName: z.string().optional(),
-  tenantName: z.string().optional(),
-  tenantCNIC: z.string().optional(),
-  tenantPhoneNumber: z.string().optional(),
-  monthlyRentAmount: z.number().min(0).optional(),
-  rentDueDate: z.number().min(1).max(31).optional(),
-  securityAdvanceAmount: z.number().min(0).optional(),
   notes: z.string().optional(),
-  agentName: z.string().optional(),
-  agentPhoneNumber: z.string().optional(),
-  agentCommissionAmount: z.number().min(0).optional(),
-  agentCommissionPercentage: z.number().min(0).max(100).optional(),
 });
 
 type PropertyFormValues = z.infer<typeof propertyFormSchema>;
@@ -90,28 +72,15 @@ export function AddPropertyModal({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: {
       name: "",
+      propertyType: undefined,
       location: "",
-      category: undefined,
-      type: undefined,
-      status: undefined,
-      purchaseDate: undefined as any,
+      projectStartDate: new Date(),
       purchasePrice: 0,
-      ownershipType: undefined,
+      paymentMethod: "Cash",
+      bankName: undefined,
+      ownershipType: "Single",
       partners: [],
-      constructionStartDate: undefined as any,
-      expectedCompletionDate: undefined as any,
-      contractorName: "",
-      tenantName: "",
-      tenantCNIC: "",
-      tenantPhoneNumber: "",
-      monthlyRentAmount: 0,
-      rentDueDate: undefined,
-      securityAdvanceAmount: 0,
       notes: "",
-      agentName: "",
-      agentPhoneNumber: "",
-      agentCommissionAmount: 0,
-      agentCommissionPercentage: undefined,
     },
   });
 
@@ -121,119 +90,118 @@ export function AddPropertyModal({
   });
 
   const ownershipType = form.watch("ownershipType");
-  const category = form.watch("category");
-  const propertyType = form.watch("type");
+  const paymentMethod = form.watch("paymentMethod");
+  const banks = getBanks();
+  const [images, setImages] = useState<PropertyImage[]>([]);
+  const previousOwnershipType = useRef<string | undefined>(ownershipType);
 
   // Update form when editing property changes
   useEffect(() => {
     if (editingProperty) {
+      const partners = editingProperty.partners || [];
       form.reset({
         name: editingProperty.name,
+        propertyType: undefined, // Map from category if needed
         location: editingProperty.location,
-        category: editingProperty.category,
-        type: editingProperty.type,
-        status: editingProperty.status,
-        purchaseDate: new Date(editingProperty.purchaseDate),
+        projectStartDate: new Date(editingProperty.purchaseDate),
         purchasePrice: editingProperty.purchasePrice,
-        ownershipType: editingProperty.ownershipType,
-        partners: editingProperty.partners || [],
-        constructionStartDate: editingProperty.constructionDetails?.constructionStartDate
-          ? new Date(editingProperty.constructionDetails.constructionStartDate)
-          : undefined as any,
-        expectedCompletionDate: editingProperty.constructionDetails?.expectedCompletionDate
-          ? new Date(editingProperty.constructionDetails.expectedCompletionDate)
-          : undefined as any,
-        contractorName: editingProperty.constructionDetails?.contractorName || "",
-        tenantName: editingProperty.rentalDetails?.tenantName || "",
-        tenantCNIC: editingProperty.rentalDetails?.tenantCNIC || "",
-        tenantPhoneNumber: editingProperty.rentalDetails?.tenantPhoneNumber || "",
-        monthlyRentAmount: editingProperty.rentalDetails?.monthlyRentAmount || 0,
-        rentDueDate: editingProperty.rentalDetails?.rentDueDate,
-        securityAdvanceAmount: editingProperty.rentalDetails?.securityAdvanceAmount || 0,
+        paymentMethod: "Cash", // Default
+        bankName: undefined,
+        ownershipType: editingProperty.ownershipType || "Single",
+        partners: partners,
         notes: editingProperty.notes || "",
-        agentName: editingProperty.agentInformation?.name || "",
-        agentPhoneNumber: editingProperty.agentInformation?.phoneNumber || "",
-        agentCommissionAmount: editingProperty.agentInformation?.commissionAmount || 0,
-        agentCommissionPercentage: editingProperty.agentInformation?.commissionPercentage,
       });
+      setImages(editingProperty.images || []);
+      previousOwnershipType.current = editingProperty.ownershipType || "Single";
     } else {
       form.reset({
         name: "",
+        propertyType: undefined,
         location: "",
-        category: undefined,
-        type: undefined,
-        status: undefined,
-        purchaseDate: undefined as any,
+        projectStartDate: new Date(),
         purchasePrice: 0,
-        ownershipType: undefined,
+        paymentMethod: "Cash",
+        bankName: undefined,
+        ownershipType: "Single",
         partners: [],
-        constructionStartDate: undefined as any,
-        expectedCompletionDate: undefined as any,
-        contractorName: "",
-        tenantName: "",
-        tenantCNIC: "",
-        tenantPhoneNumber: "",
-        monthlyRentAmount: 0,
-        rentDueDate: undefined,
-        securityAdvanceAmount: 0,
         notes: "",
-        agentName: "",
-        agentPhoneNumber: "",
-        agentCommissionAmount: 0,
-        agentCommissionPercentage: undefined,
       });
+      setImages([]);
+      previousOwnershipType.current = "Single";
     }
   }, [editingProperty, form]);
+
+  // Automatically add first partner when Joint ownership is selected
+  // Clear partners when switching to Single
+  useEffect(() => {
+    // Only act when ownership type actually changes
+    if (previousOwnershipType.current === ownershipType) {
+      return;
+    }
+    
+    previousOwnershipType.current = ownershipType;
+    
+    if (ownershipType === "Joint" && fields.length === 0) {
+      // Auto-add first partner when switching to Joint (only if no partners exist)
+      append({ name: "", investmentAmount: undefined, sharePercentage: undefined });
+    } else if (ownershipType === "Single" && fields.length > 0) {
+      // Clear all partners when switching to Single
+      // Remove in reverse order to avoid index issues
+      for (let i = fields.length - 1; i >= 0; i--) {
+        remove(i);
+      }
+    }
+  }, [ownershipType, fields.length, append, remove]);
 
   // Reset form when modal closes
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       form.reset();
+      setImages([]);
     }
     onOpenChange(newOpen);
+  };
+
+  const handleImageUpload = (category: PropertyImage["category"], file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      const newImage: PropertyImage = {
+        id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        url: dataUrl,
+        category,
+        uploadedAt: new Date().toISOString().split("T")[0],
+      };
+      setImages([...images, newImage]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteImage = (imageId: string) => {
+    setImages(images.filter(img => img.id !== imageId));
   };
 
   const onSubmit = (values: PropertyFormValues) => {
     const propertyData: Omit<Property, "id"> = {
       name: values.name,
       location: values.location,
-      category: values.category,
-      type: values.type,
-      status: values.status,
-      purchaseDate: values.purchaseDate.toISOString().split("T")[0],
-      purchasePrice: values.purchasePrice,
-      ownershipType: values.ownershipType,
+      category: "Land Only", // Default category
+      type: "Sale", // Default type
+      status: "Ongoing", // Default status
+      purchaseDate: values.projectStartDate 
+        ? values.projectStartDate.toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      purchasePrice: values.purchasePrice || 0,
+      ownershipType: values.ownershipType || "Single",
       partners: values.ownershipType === "Joint" && values.partners && values.partners.length > 0 
-        ? values.partners.map(p => ({ name: p.name, sharePercentage: p.sharePercentage }))
+        ? values.partners.map(p => ({ 
+            name: p.name, 
+            investmentAmount: p.investmentAmount,
+            sharePercentage: p.sharePercentage 
+          }))
         : undefined,
-      constructionDetails: values.category === "Land + Construction" && values.constructionStartDate
-        ? {
-            constructionStartDate: values.constructionStartDate.toISOString().split("T")[0],
-            expectedCompletionDate: values.expectedCompletionDate
-              ? values.expectedCompletionDate.toISOString().split("T")[0]
-              : undefined,
-            contractorName: values.contractorName || undefined,
-          }
-        : undefined,
-      rentalDetails: values.type === "Rent" && values.tenantName
-        ? {
-            tenantName: values.tenantName,
-            tenantCNIC: values.tenantCNIC || undefined,
-            tenantPhoneNumber: values.tenantPhoneNumber || undefined,
-            monthlyRentAmount: values.monthlyRentAmount || 0,
-            rentDueDate: values.rentDueDate || 1,
-            securityAdvanceAmount: values.securityAdvanceAmount || undefined,
-          }
-        : undefined,
+      images: images.length > 0 ? images : undefined,
       notes: values.notes || undefined,
-      agentInformation: values.agentName
-        ? {
-            name: values.agentName,
-            phoneNumber: values.agentPhoneNumber || undefined,
-            commissionAmount: values.agentCommissionAmount || undefined,
-            commissionPercentage: values.agentCommissionPercentage || undefined,
-          }
-        : undefined,
     };
 
     if (isEditMode && editingProperty && onUpdateProperty) {
@@ -242,715 +210,428 @@ export function AddPropertyModal({
       onAddProperty(propertyData);
     }
     form.reset();
+    setImages([]);
     handleOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col p-0 sm:p-5 gap-0 sm:gap-4 overflow-hidden sm:overflow-y-auto top-0 sm:top-[50%] left-0 sm:left-[50%] translate-x-0 sm:translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] rounded-none sm:rounded-lg">
-        <DialogHeader className="px-4 sm:px-0 pt-4 sm:pt-0 pb-2 sm:pb-3 flex-shrink-0 border-b sm:border-b-0">
-          <DialogTitle className="text-base sm:text-lg font-semibold">
+      <DialogContent className="max-w-5xl w-[95vw] h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col p-0 sm:p-6 gap-0 sm:gap-0 overflow-hidden top-0 sm:top-[50%] left-0 sm:left-[50%] translate-x-0 sm:translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] rounded-none sm:rounded-2xl border-border/50 glass-card shadow-modal">
+        <DialogHeader className="px-6 sm:px-6 pt-6 sm:pt-6 pb-4 sm:pb-4 flex-shrink-0 border-b border-border/30">
+          <DialogTitle className="text-lg font-semibold">
             {isEditMode ? "Edit Property" : "Add New Property"}
           </DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm mt-0.5 sm:mt-1">
+          <DialogDescription className="text-sm text-muted-foreground">
             {isEditMode 
-              ? "Update property information. All fields are required."
-              : "Enter basic property information. All fields are required."}
+              ? "Update property details and information"
+              : "Enter property information to get started"}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
-            <div className="flex-1 overflow-y-auto px-4 sm:px-0 py-3 sm:py-0 space-y-3 sm:space-y-4">
-            {/* Property Name / Code */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Property Name / Code</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Property-001 or Main Street House"
-                      className="text-sm h-9 sm:h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Enter a unique name or code to identify this property
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Location / Area */}
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Location / Area</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Karachi, Sindh or Lahore, Punjab"
-                      className="text-sm h-9 sm:h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Enter the city and province/state where the property is located
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Property Category */}
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Property Category</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="text-sm h-9 sm:h-10">
-                        <SelectValue placeholder="Select property category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Land Only">Land Only</SelectItem>
-                      <SelectItem value="Built House (Purchased)">Built House (Purchased)</SelectItem>
-                      <SelectItem value="Land + Construction">Land + Construction</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription className="text-xs">
-                    Select the type of property you own
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Property Type */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Property Type</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="text-sm h-9 sm:h-10">
-                        <SelectValue placeholder="Select property type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Sale">Sale</SelectItem>
-                      <SelectItem value="Rent">Rent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription className="text-xs">
-                    Is this property for sale or rent?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Property Status */}
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Property Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="text-sm h-9 sm:h-10">
-                        <SelectValue placeholder="Select property status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Ongoing">Ongoing</SelectItem>
-                      <SelectItem value="Sold">Sold</SelectItem>
-                      <SelectItem value="Rented">Rented</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription className="text-xs">
-                    Current status of the property
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Purchase Date */}
-            <FormField
-              control={form.control}
-              name="purchaseDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm font-medium">Purchase Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full text-sm h-9 sm:h-10 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                  <FormDescription className="text-xs">
-                    When did you purchase this property?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Purchase Price */}
-            <FormField
-              control={form.control}
-              name="purchasePrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Purchase Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      className="text-sm h-9 sm:h-10"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Enter the total amount paid for this property
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Ownership & Partner Information Section */}
-            <div className="pt-3 sm:pt-4 border-t border-border space-y-3 sm:space-y-4">
-              <h3 className="text-sm sm:text-base font-semibold">Ownership & Partner Information</h3>
-              <p className="text-xs text-muted-foreground">This section is optional</p>
-
-              {/* Ownership Type */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-6 sm:px-6 py-4 sm:py-6 space-y-6 pb-8 sm:pb-10">
+            {/* Row 1: Property Name & Property Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <FormField
                 control={form.control}
-                name="ownershipType"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Ownership Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="text-sm h-9 sm:h-10">
-                          <SelectValue placeholder="Select ownership type (optional)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Single">Single</SelectItem>
-                        <SelectItem value="Joint">Joint</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription className="text-xs">
-                      Select if the property is owned by a single person or jointly
-                    </FormDescription>
+                    <FormLabel className="text-sm font-medium">Property Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter property name"
+                        className="h-11"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Partners Section - Only show if Joint is selected */}
-              {ownershipType === "Joint" && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <FormLabel className="text-base font-semibold">Partner Name(s)</FormLabel>
+              <FormField
+                control={form.control}
+                name="propertyType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Property Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="House">House</SelectItem>
+                        <SelectItem value="Plaza">Plaza</SelectItem>
+                        <SelectItem value="Commercial">Commercial</SelectItem>
+                        <SelectItem value="Plot">Plot</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 2: Location & Project Start Date */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Location / Area</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter location"
+                        className="h-11"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="projectStartDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-sm font-medium">Project Start Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full h-11 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Select date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 3: Initial Investment Amount & Payment Method */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              <FormField
+                control={form.control}
+                name="purchasePrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Initial Investment Amount</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="500"
+                        placeholder="Enter amount"
+                        className="h-11"
+                        value={field.value === 0 ? "" : field.value || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? 0 : parseFloat(value) || 0);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Payment Method</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Cash">Cash</SelectItem>
+                        <SelectItem value="Bank">Bank</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 4: Bank Selection (conditional) */}
+            {paymentMethod === "Bank" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                <FormField
+                  control={form.control}
+                  name="bankName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Bank</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-11">
+                            <SelectValue placeholder="Select bank" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {banks.map((bank) => (
+                            <SelectItem key={bank.id} value={bank.name}>
+                              {bank.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Partners Section - Compact & Collapsible */}
+            <div className="space-y-4 pt-4 border-t border-border/30">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">Partners (Optional)</h3>
+                <div className="flex items-center gap-3">
+                  <FormField
+                    control={form.control}
+                    name="ownershipType"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2">
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value || "Single"}>
+                            <SelectTrigger className="h-10 w-[150px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Single">Single Owner</SelectItem>
+                              <SelectItem value="Joint">Joint</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  {ownershipType === "Joint" && (
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => append({ name: "", sharePercentage: undefined })}
-                      className="gap-2"
+                      onClick={() => append({ name: "", investmentAmount: undefined, sharePercentage: undefined })}
+                      className="h-10 gap-2 shadow-sm hover:shadow-md"
                     >
                       <Plus className="h-4 w-4" />
-                      Add Partner
+                      Add
                     </Button>
-                  </div>
+                  )}
+                </div>
+              </div>
 
+              {ownershipType === "Joint" && fields.length > 0 && (
+                <div className="space-y-3 border border-border rounded-xl p-4 bg-muted/20">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2 items-start p-2 sm:p-3 border border-border">
-                      <div className="flex-1 space-y-2 sm:space-y-3">
-                        <FormField
-                          control={form.control}
-                          name={`partners.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs font-medium">Partner Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter partner name"
-                                  className="text-sm h-9 sm:h-10"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    <div key={field.id} className="grid grid-cols-3 gap-3 items-end">
+                      <FormField
+                        control={form.control}
+                        name={`partners.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-medium">Partner Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Name"
+                                className="h-10 text-sm"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`partners.${index}.investmentAmount`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-medium">Investment Amount</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="500"
+                                placeholder="Enter amount"
+                                className="h-10 text-sm"
+                                value={field.value === 0 || !field.value ? "" : field.value}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(value === "" ? undefined : parseFloat(value) || undefined);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex gap-2">
                         <FormField
                           control={form.control}
                           name={`partners.${index}.sharePercentage`}
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs font-medium">Ownership Share % (Optional)</FormLabel>
+                            <FormItem className="flex-1">
+                              <FormLabel className="text-xs font-medium">Share %</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
-                                  placeholder="e.g., 50"
-                                  className="text-sm h-9 sm:h-10"
+                                  placeholder="%"
+                                  className="h-10 text-sm"
                                   {...field}
                                   onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
                                   value={field.value || ""}
                                 />
                               </FormControl>
-                              <FormDescription className="text-xs">
-                                Percentage of ownership (0-100)
-                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                          className="h-10 w-10 shrink-0 rounded-md hover:bg-destructive/10 text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => remove(index)}
-                        className="mt-6"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
                   ))}
+                </div>
+              )}
 
-                  {fields.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      Click "Add Partner" to add partner information
-                    </p>
-                  )}
+              {ownershipType === "Single" && (
+                <p className="text-sm text-muted-foreground">Single owner - 100% ownership</p>
+              )}
+            </div>
+
+            {/* Property Images Section */}
+            <div className="space-y-4 pt-4 border-t border-border/30">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">Property Images (Optional)</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(["Front View", "Inside", "Construction Progress", "After Completion"] as const).map((category) => {
+                  const categoryImages = images.filter(img => img.category === category);
+                  return (
+                    <div key={category} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-muted-foreground">{category}</label>
+                        <div className="relative">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id={`image-upload-${category}`}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(category, file);
+                                e.target.value = ""; // Reset input
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById(`image-upload-${category}`)?.click()}
+                            className="h-8 gap-1.5 text-xs"
+                          >
+                            <Upload className="h-3.5 w-3.5" />
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {categoryImages.length > 0 && (
+                        <div className="grid grid-cols-2 gap-2">
+                          {categoryImages.map((image) => (
+                            <div key={image.id} className="relative group aspect-square overflow-hidden border border-border rounded-md bg-muted">
+                              <img
+                                src={image.url}
+                                alt={category}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteImage(image.id)}
+                                className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {images.length === 0 && (
+                <div className="flex items-center justify-center p-6 border border-dashed border-border rounded-lg bg-muted/20">
+                  <div className="text-center">
+                    <ImageIcon className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground">No images uploaded</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">Click "Add" to upload images by category</p>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Construction Details Section (Conditional - Only for Land + Construction) */}
-            {category === "Land + Construction" && (
-              <div className="pt-3 sm:pt-4 border-t border-border space-y-3 sm:space-y-4">
-                <h3 className="text-sm sm:text-base font-semibold">Construction Details</h3>
-                <p className="text-xs text-muted-foreground">Enter construction information (optional)</p>
-
-                <FormField
-                  control={form.control}
-                  name="constructionStartDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-sm font-medium">Construction Start Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full text-sm h-9 sm:h-10 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription className="text-xs">
-                        When did construction start?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="expectedCompletionDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-sm font-medium">Expected Completion Date (Optional)</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full text-sm h-9 sm:h-10 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date (optional)</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < new Date("1900-01-01")}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription className="text-xs">
-                        When is construction expected to complete?
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="contractorName"
-                  render={({ field }) => (
-                    <FormItem>
-                  <FormLabel className="text-sm font-medium">Contractor Name (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter contractor name"
-                      className="text-sm h-9 sm:h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    Name of the construction contractor
-                  </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Rental Details Section (Conditional - Only for Rent type) */}
-            {propertyType === "Rent" && (
-              <div className="pt-3 sm:pt-4 border-t border-border space-y-3 sm:space-y-4">
-                <h3 className="text-sm sm:text-base font-semibold">Rental Details</h3>
-                <p className="text-xs text-muted-foreground">Enter tenant and rental information (optional)</p>
-
-                <FormField
-                  control={form.control}
-                  name="tenantName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Tenant Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter tenant name"
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Full name of the tenant
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="tenantCNIC"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Tenant CNIC (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., 42101-1234567-1"
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        National ID card number
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="tenantPhoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Tenant Phone Number (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., +92-300-1234567"
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Contact phone number
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="monthlyRentAmount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Monthly Rent Amount</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          className="text-sm h-9"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Monthly rental amount
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="rentDueDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Rent Due Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="e.g., 5"
-                          min={1}
-                          max={31}
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Day of the month when rent is due (1-31)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="securityAdvanceAmount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Security / Advance Amount (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          className="text-sm h-9"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Security deposit or advance payment amount
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Agent / Dealer Information Section (Optional) */}
-            <div className="pt-3 sm:pt-4 border-t border-border space-y-3 sm:space-y-4">
-              <h3 className="text-sm sm:text-base font-semibold">Agent / Dealer Information</h3>
-              <p className="text-xs text-muted-foreground">This section is optional</p>
-
-              <FormField
-                control={form.control}
-                name="agentName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Agent / Dealer Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter agent or dealer name"
-                        className="text-sm h-9 sm:h-10"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Name of the real estate agent or dealer
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="agentPhoneNumber"
-                render={({ field }) => (
-                  <FormItem>
-                      <FormLabel className="text-sm font-medium">Phone Number (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., +92-300-1234567"
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Contact phone number
-                      </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <FormField
-                  control={form.control}
-                  name="agentCommissionAmount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Commission Amount (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Fixed commission amount
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="agentCommissionPercentage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Commission Percentage (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="e.g., 2.5"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          className="text-sm h-9 sm:h-10"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Commission percentage (0-100)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Maintenance & Notes Section */}
-            <div className="pt-3 sm:pt-4 border-t border-border space-y-3 sm:space-y-4">
-              <h3 className="text-sm sm:text-base font-semibold">Maintenance & Notes</h3>
-              <p className="text-xs text-muted-foreground">Add property-specific notes (optional)</p>
-
+            {/* Notes Section - Full Width */}
+            <div className="pt-4 border-t border-border/30">
               <FormField
                 control={form.control}
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Property Notes</FormLabel>
+                    <FormLabel className="text-sm font-medium mb-2 block">Notes / Remarks</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter notes about maintenance, utility issues, agent follow-ups, or any other property-related information..."
-                        className="min-h-[100px] sm:min-h-[120px] text-sm"
+                        placeholder="Enter any additional notes or remarks..."
+                        className="min-h-[100px] max-h-[200px] text-sm resize-y"
                         rows={4}
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-xs">
-                      Free-text notes area for property-specific information
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -958,16 +639,16 @@ export function AddPropertyModal({
             </div>
 
             </div>
-            <DialogFooter className="px-4 sm:px-0 pt-3 sm:pt-0 pb-4 sm:pb-0 gap-2 flex-shrink-0 border-t sm:border-t-0 mt-auto">
+            <DialogFooter className="px-6 sm:px-6 pt-4 pb-6 sm:pb-6 gap-3 flex-shrink-0 border-t border-border/30 bg-card/60 backdrop-blur-sm">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto h-10 px-4 text-sm border-border/50 hover:bg-muted/50"
               >
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto h-10 px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
                 {isEditMode ? "Update" : "Save"}
               </Button>
             </DialogFooter>

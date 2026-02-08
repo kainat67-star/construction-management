@@ -1,5 +1,6 @@
 export interface Partner {
   name: string;
+  investmentAmount?: number;
   sharePercentage?: number;
 }
 
@@ -359,3 +360,61 @@ export const properties: Property[] = [
     ownershipType: "Single",
   },
 ];
+
+// Properties data management with localStorage persistence
+let propertiesData: Property[] = properties;
+
+// Load properties from localStorage on module load
+function loadPropertiesFromStorage(): void {
+  const stored = localStorage.getItem("properties");
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        propertiesData = parsed;
+        return;
+      }
+    } catch (e) {
+      console.error("Error loading properties from localStorage", e);
+    }
+  }
+  // If no stored data or error, use initial properties and save them
+  savePropertiesToStorage();
+}
+
+// Save properties to localStorage
+function savePropertiesToStorage(): void {
+  try {
+    localStorage.setItem("properties", JSON.stringify(propertiesData));
+  } catch (e) {
+    console.error("Error saving properties to localStorage", e);
+  }
+}
+
+// Initialize on module load
+loadPropertiesFromStorage();
+
+// Export functions to get and set properties
+export function getProperties(): Property[] {
+  return propertiesData;
+}
+
+export function setProperties(newProperties: Property[]): void {
+  propertiesData = newProperties;
+  savePropertiesToStorage();
+}
+
+export function addProperty(property: Property): void {
+  propertiesData = [...propertiesData, property];
+  savePropertiesToStorage();
+}
+
+export function updateProperty(id: string, property: Omit<Property, "id">): void {
+  propertiesData = propertiesData.map((p) => (p.id === id ? { ...property, id } : p));
+  savePropertiesToStorage();
+}
+
+export function deleteProperty(id: string): void {
+  propertiesData = propertiesData.filter((p) => p.id !== id);
+  savePropertiesToStorage();
+}
