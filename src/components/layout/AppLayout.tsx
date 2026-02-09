@@ -124,7 +124,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
           )}
         >
           {children}
-        </div>
+      </div>
       </main>
     </div>
   );

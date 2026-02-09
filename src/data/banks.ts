@@ -4,14 +4,15 @@ export interface Bank {
   accountNumber?: string;
   branchName?: string;
   accountType?: string;
+  balance?: number;
   notes?: string;
 }
 
 // Default banks (can be replaced by user-added banks)
 let banksData: Bank[] = [
-  { id: "bank-1", name: "Bank A" },
-  { id: "bank-2", name: "Bank B" },
-  { id: "bank-3", name: "Bank C" },
+  { id: "bank-1", name: "Bank A", balance: 0 },
+  { id: "bank-2", name: "Bank B", balance: 0 },
+  { id: "bank-3", name: "Bank C", balance: 0 },
 ];
 
 export function getBanks(): Bank[] {

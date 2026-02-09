@@ -618,24 +618,24 @@ export function AddPropertyModal({
 
             {/* Notes Section - Full Width */}
             <div className="pt-4 border-t border-border/30">
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
                     <FormLabel className="text-sm font-medium mb-2 block">Notes / Remarks</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter any additional notes or remarks..."
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter any additional notes or remarks..."
                         className="min-h-[100px] max-h-[200px] text-sm resize-y"
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      rows={4}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             </div>
 
             </div>

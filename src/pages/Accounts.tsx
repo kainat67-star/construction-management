@@ -99,6 +99,7 @@ const Accounts = () => {
     accountNumber: "",
     branchName: "",
     accountType: "",
+    balance: 0,
     notes: "",
   });
 
@@ -1307,6 +1308,29 @@ const Accounts = () => {
                 </Select>
               </div>
               <div>
+                <Label htmlFor="bank-balance" className="text-sm sm:text-base font-semibold mb-2 block">Bank Balance</Label>
+                <Input
+                  id="bank-balance"
+                  type="number"
+                  value={
+                    editingBank
+                      ? editingBank.balance ?? ""
+                      : newBank.balance === 0 ? "" : newBank.balance
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numeric = value === "" ? 0 : parseFloat(value) || 0;
+                    if (editingBank) {
+                      setEditingBank({ ...editingBank, balance: numeric });
+                    } else {
+                      setNewBank({ ...newBank, balance: numeric });
+                    }
+                  }}
+                  className="text-base sm:text-lg h-11 sm:h-12 border-2"
+                  placeholder="Enter current bank balance"
+                />
+              </div>
+              <div>
                 <Label htmlFor="bank-notes" className="text-sm sm:text-base font-semibold mb-2 block">Notes</Label>
                 <Input
                   id="bank-notes"
@@ -1328,7 +1352,7 @@ const Accounts = () => {
                   onClick={() => {
                     setShowBankDialog(false);
                     setEditingBank(null);
-                    setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", notes: "" });
+                    setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", balance: 0, notes: "" });
                   }}
                   className="shadow-sm w-full sm:w-auto h-9 sm:h-10"
                 >

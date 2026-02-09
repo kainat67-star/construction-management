@@ -206,7 +206,7 @@ export function PropertiesTable({ properties, onEdit, onDelete }: PropertiesTabl
                     className="border-b border-border/10 hover:bg-muted/15 transition-colors"
                   >
                     <td className="px-5 py-4">
-                      <span className="text-sm font-semibold text-foreground">{property.name}</span>
+                        <span className="text-sm font-semibold text-foreground">{property.name}</span>
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-sm text-muted-foreground">{property.location}</span>
