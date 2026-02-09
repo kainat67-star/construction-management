@@ -5,9 +5,6 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Index from "./pages/Index";
-import Activity from "./pages/Activity";
-import Listing from "./pages/Listing";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
 import Accounts from "./pages/Accounts";
@@ -35,31 +32,7 @@ const App = () => (
               path="/"
               element={
                 <ProtectedRoute>
-                  <Navigate to="/dashboard" replace />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/activity"
-              element={
-                <ProtectedRoute>
-                  <Activity />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/listing"
-              element={
-                <ProtectedRoute>
-                  <Listing />
+                  <Navigate to="/accounts" replace />
                 </ProtectedRoute>
               }
             />
