@@ -93,10 +93,6 @@ const Accounts = () => {
     isPending: false,
   });
   const [selectedPaymentSource, setSelectedPaymentSource] = useState<string>("Cash");
-  const [selectedPaymentType, setSelectedPaymentType] = useState<"Cash" | "Bank" | "Split">("Cash");
-  const [splitCashAmount, setSplitCashAmount] = useState<number>(0);
-  const [splitBankAmount, setSplitBankAmount] = useState<number>(0);
-  const [splitBankName, setSplitBankName] = useState<string>("");
 
   const [newBank, setNewBank] = useState<Omit<Bank, "id">>({
     name: "",
@@ -218,82 +214,35 @@ const Accounts = () => {
       return;
     }
 
-    let expense: DailyExpense;
-
-    if (selectedPaymentType === "Split") {
-      // Validate split payment
-      if (splitCashAmount <= 0 && splitBankAmount <= 0) {
-        toast({
-          title: "Invalid split payment",
-          description: "Please enter amounts for cash or bank payment.",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (splitBankAmount > 0 && !splitBankName) {
-        toast({
-          title: "Bank required",
-          description: "Please select a bank for bank payment.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      expense = {
-        ...newExpense,
-        paymentMethod: "Split",
-        amount: splitCashAmount + splitBankAmount,
-        cashAmount: splitCashAmount > 0 ? splitCashAmount : undefined,
-        bankAmount: splitBankAmount > 0 ? splitBankAmount : undefined,
-        bankName: splitBankAmount > 0 ? splitBankName : undefined,
-        id: `expense-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      };
-    } else if (selectedPaymentType === "Cash") {
-      if (newExpense.amount <= 0) {
-        toast({
-          title: "Invalid amount",
-          description: "Please enter a valid amount.",
-          variant: "destructive",
-        });
-        return;
-      }
-      expense = {
-        ...newExpense,
-        paymentMethod: "Cash",
-        amount: newExpense.amount,
-        bankName: undefined,
-        cashAmount: undefined,
-        bankAmount: undefined,
-        id: `expense-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      };
-    } else {
-      // Bank payment
-      if (newExpense.amount <= 0) {
-        toast({
-          title: "Invalid amount",
-          description: "Please enter a valid amount.",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (!selectedPaymentSource || selectedPaymentSource === "Cash") {
-        toast({
-          title: "Bank required",
-          description: "Please select a bank for payment.",
-          variant: "destructive",
-        });
-        return;
-      }
-      expense = {
-        ...newExpense,
-        paymentMethod: "Bank",
-        amount: newExpense.amount,
-        bankName: selectedPaymentSource,
-        cashAmount: undefined,
-        bankAmount: undefined,
-        id: `expense-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      };
+    if (newExpense.amount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount.",
+        variant: "destructive",
+      });
+      return;
     }
+
+    if (!selectedPaymentSource) {
+      toast({
+        title: "Payment method required",
+        description: "Please select Cash or a Bank.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const isCash = selectedPaymentSource === "Cash";
+
+    const expense: DailyExpense = {
+      ...newExpense,
+      paymentMethod: isCash ? "Cash" : "Bank",
+      amount: newExpense.amount,
+      bankName: isCash ? undefined : selectedPaymentSource,
+      cashAmount: undefined,
+      bankAmount: undefined,
+      id: `expense-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    };
 
     const updatedLog: DailyLog = {
       ...currentLog,
@@ -315,10 +264,6 @@ const Accounts = () => {
       isPending: false,
     });
     setSelectedPaymentSource("Cash");
-    setSelectedPaymentType("Cash");
-    setSplitCashAmount(0);
-    setSplitBankAmount(0);
-    setSplitBankName("");
     setShowExpenseDialog(false);
 
     toast({
@@ -828,7 +773,6 @@ const Accounts = () => {
                 <Button
                   onClick={() => {
                     setSelectedPaymentSource("Cash");
-                    setSelectedPaymentType("Cash");
                     setShowExpenseDialog(true);
                   }}
                   className="gap-2 h-10 px-3 sm:px-5 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 font-medium"
@@ -1062,10 +1006,6 @@ const Accounts = () => {
             setShowExpenseDialog(open);
             if (!open) {
               setSelectedPaymentSource("Cash");
-              setSelectedPaymentType("Cash");
-              setSplitCashAmount(0);
-              setSplitBankAmount(0);
-              setSplitBankName("");
             }
           }}
         >
@@ -1114,141 +1054,42 @@ const Accounts = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="payment-type" className="text-sm font-medium mb-2 block">Payment Type *</Label>
-                <Select
-                  value={selectedPaymentType}
-                  onValueChange={(value) => {
-                    setSelectedPaymentType(value as "Cash" | "Bank" | "Split");
-                    if (value === "Cash") {
-                      setSelectedPaymentSource("Cash");
-                    }
+                <Label htmlFor="expense-amount" className="text-sm font-medium mb-2 block">Amount *</Label>
+                <Input
+                  id="expense-amount"
+                  type="number"
+                  step="500"
+                  value={newExpense.amount === 0 ? "" : newExpense.amount || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewExpense({
+                      ...newExpense,
+                      amount: value === "" ? 0 : parseFloat(value) || 0,
+                    });
                   }}
+                  className="h-11 border-border/50"
+                  placeholder="Enter amount"
+                />
+              </div>
+              <div>
+                <Label htmlFor="expense-method" className="text-sm font-medium mb-2 block">Payment Method *</Label>
+                <Select
+                  value={selectedPaymentSource}
+                  onValueChange={(value) => setSelectedPaymentSource(value)}
                 >
-                  <SelectTrigger id="payment-type" className="h-11 border-border/50">
-                    <SelectValue placeholder="Select payment type" />
+                  <SelectTrigger id="expense-method" className="h-11 border-border/50">
+                    <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Cash">Cash Only</SelectItem>
-                    <SelectItem value="Bank">Bank Only</SelectItem>
-                    <SelectItem value="Split">Split Payment (Cash + Bank)</SelectItem>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    {bankNames.map((bankName) => (
+                      <SelectItem key={bankName} value={bankName}>
+                        {bankName}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-
-              {selectedPaymentType === "Split" ? (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="split-cash" className="text-sm font-medium mb-2 block">Cash Amount</Label>
-                      <Input
-                        id="split-cash"
-                        type="number"
-                        step="500"
-                        value={splitCashAmount === 0 ? "" : splitCashAmount}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setSplitCashAmount(value === "" ? 0 : parseFloat(value) || 0);
-                        }}
-                        className="h-11 border-border/50"
-                        placeholder="Enter cash amount"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="split-bank" className="text-sm font-medium mb-2 block">Bank Amount</Label>
-                      <Input
-                        id="split-bank"
-                        type="number"
-                        step="500"
-                        value={splitBankAmount === 0 ? "" : splitBankAmount}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setSplitBankAmount(value === "" ? 0 : parseFloat(value) || 0);
-                        }}
-                        className="h-11 border-border/50"
-                        placeholder="Enter bank amount"
-                      />
-                    </div>
-                  </div>
-                  {splitBankAmount > 0 && (
-                    <div>
-                      <Label htmlFor="split-bank-name" className="text-sm font-medium mb-2 block">Bank *</Label>
-                      <Select
-                        value={splitBankName}
-                        onValueChange={setSplitBankName}
-                      >
-                        <SelectTrigger id="split-bank-name" className="h-11 border-border/50">
-                          <SelectValue placeholder="Select bank" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bankNames.map((bankName) => (
-                            <SelectItem key={bankName} value={bankName}>
-                              {bankName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </>
-              ) : selectedPaymentType === "Bank" ? (
-                <>
-                  <div>
-                    <Label htmlFor="expense-amount" className="text-sm font-medium mb-2 block">Amount *</Label>
-                    <Input
-                      id="expense-amount"
-                      type="number"
-                      step="500"
-                      value={newExpense.amount === 0 ? "" : newExpense.amount || ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setNewExpense({
-                          ...newExpense,
-                          amount: value === "" ? 0 : parseFloat(value) || 0,
-                        });
-                      }}
-                      className="h-11 border-border/50"
-                      placeholder="Enter amount"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="expense-method" className="text-sm font-medium mb-2 block">Bank *</Label>
-                    <Select
-                      value={selectedPaymentSource}
-                      onValueChange={(value) => setSelectedPaymentSource(value)}
-                    >
-                      <SelectTrigger id="expense-method" className="h-11 border-border/50">
-                        <SelectValue placeholder="Select bank" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bankNames.map((bankName) => (
-                          <SelectItem key={bankName} value={bankName}>
-                            {bankName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </>
-              ) : (
-                <div>
-                  <Label htmlFor="expense-amount" className="text-sm font-medium mb-2 block">Amount *</Label>
-                  <Input
-                    id="expense-amount"
-                    type="number"
-                    step="500"
-                    value={newExpense.amount === 0 ? "" : newExpense.amount || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setNewExpense({
-                        ...newExpense,
-                        amount: value === "" ? 0 : parseFloat(value) || 0,
-                      });
-                    }}
-                    className="h-11 border-border/50"
-                    placeholder="Enter amount"
-                  />
-                </div>
-              )}
 
               <div className="flex items-center gap-2">
                 <input
