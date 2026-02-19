@@ -461,19 +461,19 @@ const Accounts = () => {
 
   return (
     <AppLayout title="">
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header Section */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-300 pb-3 sm:pb-4">
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">Accounts</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">Daily financial tracking and expense management</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 mb-1 sm:mb-2">Accounts</h1>
+            <p className="text-sm sm:text-base text-gray-600">Daily financial tracking and expense management</p>
           </div>
-          <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="gap-2 h-9 px-3 text-sm border-border/50 hover:bg-muted/50"
+                  className="gap-2 h-10 px-4 text-base border-gray-300 hover:bg-gray-50"
                 >
                   <CalendarDays className="h-4 w-4" />
                   <span className="hidden sm:inline">
@@ -484,7 +484,7 @@ const Accounts = () => {
                   <span className="sm:hidden">Date</span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 border-border/50 glass-card" align="start" side="bottom">
+              <PopoverContent className="w-auto p-0 border-gray-300 bg-white" align="start" side="bottom">
                 <DateCalendar
                   mode="single"
                   selected={selectedDate || new Date()}
@@ -496,7 +496,7 @@ const Accounts = () => {
             <Button
               variant="outline"
               onClick={() => setShowHistoryDialog(true)}
-              className="gap-2 h-9 px-3 text-sm border-border/50 hover:bg-muted/50"
+              className="gap-2 h-10 px-4 text-base border-gray-300 hover:bg-gray-50"
             >
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">History</span>
@@ -504,7 +504,7 @@ const Accounts = () => {
             {!currentLog.isLocked && (
               <Button
                 onClick={handleEndOfDay}
-                className="gap-2 h-9 px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+                className="gap-2 h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white"
               >
                 <Lock className="h-4 w-4" />
                 <span className="hidden sm:inline">Close Day</span>
@@ -517,60 +517,60 @@ const Accounts = () => {
         {/* Balance Cards Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-semibold text-foreground">Balances</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Balances</h2>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowManageBanksDialog(true)}
-              className="gap-2 h-8 px-3 text-xs border-border/50 hover:bg-muted/50"
+              className="gap-2 h-9 px-3 text-sm border-gray-300 hover:bg-gray-50"
             >
-              <Building2 className="h-3.5 w-3.5" />
+              <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Manage Banks</span>
               <span className="sm:hidden">Banks</span>
             </Button>
           </div>
           
-          {/* Balance Cards - Modern Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {/* Balance Cards - Simple, Clean Design */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             {/* Total Balance Card */}
-            <div className="rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/5 backdrop-blur-xl p-4 sm:p-6 hover:border-primary/60 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 relative group shadow-lg sm:col-span-2 lg:col-span-1">
-              <div className="flex items-start justify-between mb-5">
+            <div className="rounded border-2 border-primary bg-gray-50 p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 border border-primary/30 shadow-lg shadow-primary/20">
-                    <CircleDollarSign className="h-6 w-6 text-primary" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded border border-gray-300 bg-white">
+                    <CircleDollarSign className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Balance</p>
+                    <p className="text-sm font-semibold text-gray-600 uppercase">Total Balance</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-muted-foreground/60 mb-0.5">Opening</p>
-                  <p className="text-sm font-semibold text-muted-foreground">
+                  <p className="text-xs text-gray-500 mb-1">Opening</p>
+                  <p className="text-sm font-semibold text-gray-700">
                     {formatCurrency(totalOpeningBalance)}
                   </p>
                 </div>
               </div>
-              <p className="text-3xl sm:text-4xl font-bold text-foreground mb-2 break-words">
+              <p className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 break-words">
                 {formatCurrency(totalCurrentBalance)}
               </p>
-              <p className="text-xs text-muted-foreground/70">Cash + All Banks</p>
+              <p className="text-sm text-gray-600">Cash + All Banks</p>
             </div>
 
             {/* Cash Card */}
-            <div className="rounded-2xl border border-border/30 bg-card/60 backdrop-blur-xl p-4 sm:p-6 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 relative group shadow-lg">
-              <div className="flex items-start justify-between mb-5">
+            <div className="rounded border border-gray-300 bg-gray-50 p-4 sm:p-6">
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
-                    <Wallet className="h-6 w-6 text-primary" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded border border-gray-300 bg-white">
+                    <Wallet className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cash</p>
+                    <p className="text-sm font-semibold text-gray-600 uppercase">Cash</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground/60 mb-0.5">Opening</p>
-                    <p className="text-sm font-semibold text-muted-foreground">
+                    <p className="text-xs text-gray-500 mb-1">Opening</p>
+                    <p className="text-sm font-semibold text-gray-700">
                       {formatCurrency(currentLog.openingBalances.cash)}
                     </p>
                   </div>
@@ -579,7 +579,7 @@ const Accounts = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEditBalance("cash")}
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+                      className="h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                       title="Edit cash balance"
                     >
                       <Pencil className="h-4 w-4" />
@@ -587,42 +587,34 @@ const Accounts = () => {
                   )}
                 </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-bold text-foreground mb-2 break-words">
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 break-words">
                 {formatCurrency(closingCash)}
               </p>
-              <p className="text-xs text-muted-foreground/70">Current balance</p>
+              <p className="text-sm text-gray-600">Current balance</p>
             </div>
 
             {/* Bank Cards */}
-            {banks.map((bank, index) => {
+            {banks.map((bank) => {
               const openingBalance = currentLog.openingBalances.banks[bank.name] || 0;
               const currentBalance = closingBanks[bank.name] || 0;
               return (
                 <div
                   key={bank.id}
-                  className="rounded-2xl border border-border/30 bg-card/60 backdrop-blur-xl p-4 sm:p-6 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 relative group shadow-lg"
+                  className="rounded border border-gray-300 bg-gray-50 p-4 sm:p-6"
                 >
-                  <div className="flex items-start justify-between mb-5">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-xl border flex-shrink-0",
-                        index % 2 === 0 
-                          ? "bg-gradient-to-br from-primary/20 to-primary/10 border-primary/20"
-                          : "bg-gradient-to-br from-accent/20 to-accent/10 border-accent/20"
-                      )}>
-                        <Landmark className={cn(
-                          "h-6 w-6",
-                          index % 2 === 0 ? "text-primary" : "text-accent"
-                        )} />
+                      <div className="flex h-10 w-10 items-center justify-center rounded border border-gray-300 bg-white flex-shrink-0">
+                        <Landmark className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">{bank.name}</p>
+                        <p className="text-sm font-semibold text-gray-600 uppercase truncate">{bank.name}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground/60 mb-0.5">Opening</p>
-                        <p className="text-sm font-semibold text-muted-foreground">
+                        <p className="text-xs text-gray-500 mb-1">Opening</p>
+                        <p className="text-sm font-semibold text-gray-700">
                           {formatCurrency(openingBalance)}
                         </p>
                       </div>
@@ -631,7 +623,7 @@ const Accounts = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditBalance("bank", bank.name)}
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground hover:bg-muted/50 flex-shrink-0 rounded-lg"
+                          className="h-8 w-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 flex-shrink-0"
                           title={`Edit ${bank.name} balance`}
                         >
                           <Pencil className="h-4 w-4" />
@@ -639,13 +631,13 @@ const Accounts = () => {
                       )}
                     </div>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-bold text-foreground mb-2 break-words">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 break-words">
                     {formatCurrency(currentBalance)}
                   </p>
                   {bank.accountNumber ? (
-                    <p className="text-xs text-muted-foreground/70 truncate">{bank.accountNumber}</p>
+                    <p className="text-sm text-gray-600 truncate">{bank.accountNumber}</p>
                   ) : (
-                    <p className="text-xs text-muted-foreground/70">Current balance</p>
+                    <p className="text-sm text-gray-600">Current balance</p>
                   )}
                 </div>
               );
@@ -655,107 +647,111 @@ const Accounts = () => {
 
         {/* Pending Payments Section */}
         {pendingExpenses.length > 0 && (
-          <div className="rounded-2xl border-2 border-amber-500/30 bg-amber-500/5 backdrop-blur-xl shadow-lg overflow-hidden">
-            <div className="p-4 sm:p-6">
+          <div className="rounded border-2 border-amber-400 bg-amber-50 overflow-hidden">
+            <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-base sm:text-lg font-semibold text-foreground mb-1 flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-amber-500" />
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-amber-600" />
                     Pending Payments
                   </h2>
-                  <p className="text-xs text-muted-foreground/70">Payments that are not yet completed</p>
+                  <p className="text-base text-gray-600">Payments that are not yet completed</p>
                 </div>
               </div>
               
-              <div className="rounded-xl border border-amber-500/20 overflow-hidden bg-muted/10">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-amber-500/10 border-b border-amber-500/20 hover:bg-amber-500/10">
-                        <TableHead className="text-xs font-semibold w-12 text-center text-muted-foreground py-4">#</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 min-w-[160px]">Description</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 hidden sm:table-cell min-w-[140px]">Property</TableHead>
-                        <TableHead className="text-xs font-semibold text-right text-muted-foreground py-4 min-w-[120px]">Amount</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 hidden md:table-cell">Method</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 hidden lg:table-cell">Bank</TableHead>
-                        {!currentLog.isLocked && (
-                          <TableHead className="text-xs font-semibold text-center w-20 text-muted-foreground py-4">Action</TableHead>
-                        )}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pendingExpenses.map((expense, index) => {
-                        const property = expense.propertyId
-                          ? properties.find(p => p.id === expense.propertyId)
-                          : null;
-                        return (
-                          <TableRow 
-                            key={expense.id} 
-                            className="border-b border-amber-500/10 hover:bg-amber-500/5 transition-colors"
-                          >
-                            <TableCell className="text-sm text-center text-muted-foreground py-4">
-                              {index + 1}
-                            </TableCell>
-                            <TableCell className="text-sm font-medium text-foreground py-4">
-                              <div className="flex flex-col gap-0.5">
-                                <span>{expense.description}</span>
-                                <span className="text-xs text-muted-foreground sm:hidden">
-                                  {property ? property.name : "-"} • {expense.paymentMethod === "Split" ? "Split" : expense.paymentMethod}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground py-4 hidden sm:table-cell">
-                              {property ? property.name : "-"}
-                            </TableCell>
-                            <TableCell className="text-sm font-semibold text-right text-foreground py-4">
-                              {formatCurrency(expense.amount)}
-                              {expense.paymentMethod === "Split" && (
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {expense.cashAmount && expense.bankAmount && (
-                                    <>Cash: {formatCurrency(expense.cashAmount)} • Bank: {formatCurrency(expense.bankAmount)}</>
-                                  )}
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="py-4 hidden md:table-cell">
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                                {expense.paymentMethod === "Split" ? "Split" : expense.paymentMethod}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground py-4 hidden lg:table-cell">
-                              {expense.paymentMethod === "Split" 
-                                ? expense.bankName ? `${expense.bankName} (Split)` : "Split"
-                                : expense.bankName || "-"}
-                            </TableCell>
+              <div className="rounded border border-amber-300 overflow-hidden bg-white">
+                <div className="overflow-x-auto -mx-6 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <div className="overflow-x-auto">
+                      <Table className="min-w-full">
+                        <TableHeader>
+                          <TableRow className="bg-amber-100 border-b border-amber-300">
+                            <TableHead className="text-sm font-semibold w-12 text-center text-gray-700 py-4">#</TableHead>
+                            <TableHead className="text-sm font-semibold text-gray-700 py-4 min-w-[160px]">Description</TableHead>
+                            <TableHead className="text-sm font-semibold text-gray-700 py-4 hidden sm:table-cell min-w-[140px]">Property</TableHead>
+                            <TableHead className="text-sm font-semibold text-right text-gray-700 py-4 min-w-[120px]">Amount</TableHead>
+                            <TableHead className="text-sm font-semibold text-gray-700 py-4 hidden md:table-cell">Method</TableHead>
+                            <TableHead className="text-sm font-semibold text-gray-700 py-4 hidden lg:table-cell">Bank</TableHead>
                             {!currentLog.isLocked && (
-                              <TableCell className="text-center py-4">
-                                <div className="flex items-center justify-center gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleMarkAsPaid(expense.id)}
-                                    className="h-8 w-8 p-0 text-primary hover:text-primary hover:bg-primary/10 rounded-lg"
-                                    title="Mark as paid"
-                                  >
-                                    <CheckCircle2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteExpense(expense.id)}
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                                    title="Delete"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </TableCell>
+                              <TableHead className="text-sm font-semibold text-center w-20 text-gray-700 py-4">Action</TableHead>
                             )}
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                        </TableHeader>
+                        <TableBody>
+                          {pendingExpenses.map((expense, index) => {
+                            const property = expense.propertyId
+                              ? properties.find(p => p.id === expense.propertyId)
+                              : null;
+                            return (
+                              <TableRow 
+                                key={expense.id} 
+                                className="border-b border-amber-200 hover:bg-amber-50"
+                              >
+                                <TableCell className="text-base text-center text-gray-600 py-4">
+                                  {index + 1}
+                                </TableCell>
+                                <TableCell className="text-base font-medium text-gray-900 py-4">
+                                  <div className="flex flex-col gap-1">
+                                    <span>{expense.description}</span>
+                                    <span className="text-sm text-gray-600 sm:hidden">
+                                      {property ? property.name : "-"} • {expense.paymentMethod === "Split" ? "Split" : expense.paymentMethod}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-base text-gray-600 py-4 hidden sm:table-cell">
+                                  {property ? property.name : "-"}
+                                </TableCell>
+                                <TableCell className="text-base font-semibold text-right text-gray-900 py-4">
+                                  {formatCurrency(expense.amount)}
+                                  {expense.paymentMethod === "Split" && (
+                                    <div className="text-sm text-gray-600 mt-1">
+                                      {expense.cashAmount && expense.bankAmount && (
+                                        <>Cash: {formatCurrency(expense.cashAmount)} • Bank: {formatCurrency(expense.bankAmount)}</>
+                                      )}
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className="py-4 hidden md:table-cell">
+                                  <span className="inline-flex items-center px-3 py-1 rounded text-sm font-medium bg-amber-100 text-amber-800 border border-amber-300">
+                                    {expense.paymentMethod === "Split" ? "Split" : expense.paymentMethod}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-base text-gray-600 py-4 hidden lg:table-cell">
+                                  {expense.paymentMethod === "Split" 
+                                    ? expense.bankName ? `${expense.bankName} (Split)` : "Split"
+                                    : expense.bankName || "-"}
+                                </TableCell>
+                                {!currentLog.isLocked && (
+                                  <TableCell className="text-center py-4">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleMarkAsPaid(expense.id)}
+                                        className="h-8 w-8 p-0 text-primary hover:text-primary hover:bg-blue-50 border-gray-300"
+                                        title="Mark as paid"
+                                      >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleDeleteExpense(expense.id)}
+                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-300"
+                                        title="Delete"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                )}
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -763,12 +759,12 @@ const Accounts = () => {
         )}
 
         {/* Expenses Section */}
-        <div className="rounded-2xl border border-border/30 bg-card/60 backdrop-blur-xl shadow-lg overflow-hidden">
-          <div className="p-4 sm:p-6">
+        <div className="rounded border border-gray-300 bg-gray-50 overflow-hidden">
+          <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-base sm:text-lg font-semibold text-foreground mb-1">Paid Expenses</h2>
-                <p className="text-xs text-muted-foreground/70">Track all completed daily expenses</p>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Paid Expenses</h2>
+                <p className="text-base text-gray-600">Track all completed daily expenses</p>
               </div>
               {!currentLog.isLocked && (
                 <Button
@@ -776,7 +772,7 @@ const Accounts = () => {
                     setSelectedPaymentSource("Cash");
                     setShowExpenseDialog(true);
                   }}
-                  className="gap-2 h-10 px-3 sm:px-5 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 font-medium"
+                  className="gap-2 h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white font-medium"
                 >
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">Add Entry</span>
@@ -786,29 +782,31 @@ const Accounts = () => {
             </div>
             
             {paidExpenses.length === 0 ? (
-              <div className="border border-dashed border-border/50 rounded-xl p-8 sm:p-12 text-center">
+              <div className="border border-dashed border-gray-300 rounded p-12 text-center bg-white">
                 <div className="flex flex-col items-center gap-3">
-                  <TrendingUp className="h-10 w-10 text-muted-foreground/30" />
+                  <TrendingUp className="h-12 w-12 text-gray-400" />
                   <div>
-                    <p className="text-sm font-medium text-foreground mb-1">No expenses recorded</p>
-                    <p className="text-xs text-muted-foreground">Click "Add Entry" to record your first expense</p>
+                    <p className="text-base font-medium text-gray-900 mb-1">No expenses recorded</p>
+                    <p className="text-sm text-gray-600">Click "Add Entry" to record your first expense</p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-border/20 overflow-hidden bg-muted/10">
-                <div className="overflow-x-auto">
-                  <Table>
+              <div className="rounded border border-gray-300 overflow-hidden bg-white">
+                <div className="overflow-x-auto -mx-6 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <div className="overflow-x-auto">
+                      <Table className="min-w-full">
                     <TableHeader>
-                      <TableRow className="bg-muted/20 border-b border-border/20 hover:bg-muted/20">
-                        <TableHead className="text-xs font-semibold w-12 text-center text-muted-foreground py-4">#</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 min-w-[160px]">Description</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 hidden sm:table-cell min-w-[140px]">Property</TableHead>
-                        <TableHead className="text-xs font-semibold text-right text-muted-foreground py-4 min-w-[120px]">Amount</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 hidden md:table-cell">Method</TableHead>
-                        <TableHead className="text-xs font-semibold text-muted-foreground py-4 hidden lg:table-cell">Bank</TableHead>
+                      <TableRow className="bg-gray-100 border-b border-gray-300">
+                        <TableHead className="text-sm font-semibold w-12 text-center text-gray-700 py-4">#</TableHead>
+                        <TableHead className="text-sm font-semibold text-gray-700 py-4 min-w-[160px]">Description</TableHead>
+                        <TableHead className="text-sm font-semibold text-gray-700 py-4 hidden sm:table-cell min-w-[140px]">Property</TableHead>
+                        <TableHead className="text-sm font-semibold text-right text-gray-700 py-4 min-w-[120px]">Amount</TableHead>
+                        <TableHead className="text-sm font-semibold text-gray-700 py-4 hidden md:table-cell">Method</TableHead>
+                        <TableHead className="text-sm font-semibold text-gray-700 py-4 hidden lg:table-cell">Bank</TableHead>
                         {!currentLog.isLocked && (
-                          <TableHead className="text-xs font-semibold text-center w-20 text-muted-foreground py-4">Action</TableHead>
+                          <TableHead className="text-sm font-semibold text-center w-20 text-gray-700 py-4">Action</TableHead>
                         )}
                       </TableRow>
                     </TableHeader>
@@ -820,26 +818,26 @@ const Accounts = () => {
                         return (
                           <TableRow 
                             key={expense.id} 
-                            className="border-b border-border/10 hover:bg-muted/20 transition-colors"
+                            className="border-b border-gray-200 hover:bg-gray-50"
                           >
-                            <TableCell className="text-sm text-center text-muted-foreground py-4">
+                            <TableCell className="text-base text-center text-gray-600 py-4">
                               {index + 1}
                             </TableCell>
-                            <TableCell className="text-sm font-medium text-foreground py-4">
-                              <div className="flex flex-col gap-0.5">
+                            <TableCell className="text-base font-medium text-gray-900 py-4">
+                              <div className="flex flex-col gap-1">
                                 <span>{expense.description}</span>
-                                <span className="text-xs text-muted-foreground sm:hidden">
+                                <span className="text-sm text-gray-600 sm:hidden">
                                   {property ? property.name : "-"} • {expense.paymentMethod === "Split" ? "Split" : expense.paymentMethod}
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground py-4 hidden sm:table-cell">
+                            <TableCell className="text-base text-gray-600 py-4 hidden sm:table-cell">
                               {property ? property.name : "-"}
                             </TableCell>
-                            <TableCell className="text-sm font-semibold text-right text-foreground py-4">
+                            <TableCell className="text-base font-semibold text-right text-gray-900 py-4">
                               {formatCurrency(expense.amount)}
                               {expense.paymentMethod === "Split" && (
-                                <div className="text-xs text-muted-foreground mt-1">
+                                <div className="text-sm text-gray-600 mt-1">
                                   {expense.cashAmount && expense.bankAmount && (
                                     <>Cash: {formatCurrency(expense.cashAmount)} • Bank: {formatCurrency(expense.bankAmount)}</>
                                   )}
@@ -847,11 +845,11 @@ const Accounts = () => {
                               )}
                             </TableCell>
                             <TableCell className="py-4 hidden md:table-cell">
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                              <span className="inline-flex items-center px-3 py-1 rounded text-sm font-medium bg-blue-50 text-primary border border-blue-200">
                                 {expense.paymentMethod === "Split" ? "Split" : expense.paymentMethod}
                               </span>
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground py-4 hidden lg:table-cell">
+                            <TableCell className="text-base text-gray-600 py-4 hidden lg:table-cell">
                               {expense.paymentMethod === "Split" 
                                 ? expense.bankName ? `${expense.bankName} (Split)` : "Split"
                                 : expense.bankName || "-"}
@@ -859,12 +857,12 @@ const Accounts = () => {
                             {!currentLog.isLocked && (
                               <TableCell className="text-center py-4">
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => handleDeleteExpense(expense.id)}
-                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-300"
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </TableCell>
                             )}
@@ -872,7 +870,9 @@ const Accounts = () => {
                         );
                       })}
                     </TableBody>
-                  </Table>
+                      </Table>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -880,8 +880,8 @@ const Accounts = () => {
 
           {/* Footer note when the day is locked */}
           {currentLog.isLocked && (
-            <div className="p-4 bg-muted/20 border-t border-border/30">
-              <p className="text-xs font-medium text-muted-foreground text-center">
+            <div className="p-4 bg-gray-100 border-t border-gray-300">
+              <p className="text-sm font-medium text-gray-700 text-center">
                 🔒 This day's accounts are closed and locked. View the full report on the report page.
               </p>
             </div>
@@ -890,18 +890,18 @@ const Accounts = () => {
 
         {/* Edit Single Balance Dialog */}
         <Dialog open={!!editingBalance} onOpenChange={(open) => !open && setEditingBalance(null)}>
-          <DialogContent className="max-w-md border-border/50 glass-card w-[95vw] sm:w-full shadow-modal">
-            <DialogHeader className="pb-4 border-b border-border/30">
-              <DialogTitle className="text-base sm:text-lg font-semibold">
+          <DialogContent className="max-w-md border-gray-300 bg-white w-[95vw] sm:w-full">
+            <DialogHeader className="pb-4 border-b border-gray-300">
+              <DialogTitle className="text-xl font-semibold text-gray-900">
                 Edit {editingBalance?.type === "cash" ? "Cash" : editingBalance?.bankName} Balance
               </DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+              <DialogDescription className="text-base text-gray-600">
                 Update the opening balance for {editingBalance?.type === "cash" ? "cash" : editingBalance?.bankName}.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-5 py-4">
               <div>
-                <Label htmlFor="edit-balance" className="text-sm font-medium mb-2 block">
+                <Label htmlFor="edit-balance" className="text-base font-semibold mb-2 block text-gray-900">
                   {editingBalance?.type === "cash" ? "Cash" : editingBalance?.bankName} Balance
                 </Label>
                 <Input
@@ -913,22 +913,22 @@ const Accounts = () => {
                     const value = e.target.value;
                     setEditingBalanceValue(value === "" ? 0 : parseFloat(value) || 0);
                   }}
-                  className="h-11 border-border/50"
+                  className="h-12 text-base border-gray-300"
                   placeholder="Enter amount"
                   autoFocus
                 />
               </div>
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-border/30">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-300">
                 <Button 
                   variant="outline" 
                   onClick={() => setEditingBalance(null)} 
-                  className="h-9 px-4 text-sm border-border/50 hover:bg-muted/50 w-full sm:w-auto"
+                  className="h-10 px-4 text-base border-gray-300 hover:bg-gray-50 w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleSaveBalance} 
-                  className="h-9 px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 w-full sm:w-auto"
+                  className="h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white w-full sm:w-auto"
                 >
                   Save
                 </Button>
@@ -939,16 +939,16 @@ const Accounts = () => {
 
         {/* Opening Balance Dialog */}
         <Dialog open={showOpeningBalanceDialog} onOpenChange={setShowOpeningBalanceDialog}>
-          <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto border-border/50 glass-card w-[95vw] sm:w-full shadow-modal">
-            <DialogHeader className="pb-4 border-b border-border/30">
-              <DialogTitle className="text-base sm:text-lg font-semibold">Set Opening Balances</DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+          <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto border-gray-300 bg-white w-[95vw] sm:w-full">
+            <DialogHeader className="pb-4 border-b border-gray-300">
+              <DialogTitle className="text-xl font-semibold text-gray-900">Set Opening Balances</DialogTitle>
+              <DialogDescription className="text-base text-gray-600">
                 Enter the opening balances for cash and each bank at the start of the day.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-5">
               <div>
-                <Label htmlFor="cash-balance" className="text-sm font-medium mb-2 block">Cash</Label>
+                <Label htmlFor="cash-balance" className="text-base font-semibold mb-2 block text-gray-900">Cash</Label>
                 <Input
                   id="cash-balance"
                   type="number"
@@ -961,13 +961,13 @@ const Accounts = () => {
                       cash: value === "" ? 0 : parseFloat(value) || 0,
                     });
                   }}
-                  className="h-11 border-border/50"
+                  className="h-12 text-base border-gray-300"
                   placeholder="Enter amount"
                 />
               </div>
               {banks.map(bank => (
                 <div key={bank.id}>
-                  <Label htmlFor={`bank-${bank.id}`} className="text-sm font-medium mb-2 block">{bank.name}</Label>
+                  <Label htmlFor={`bank-${bank.id}`} className="text-base font-semibold mb-2 block text-gray-900">{bank.name}</Label>
                   <Input
                     id={`bank-${bank.id}`}
                     type="number"
@@ -983,16 +983,16 @@ const Accounts = () => {
                         },
                       });
                     }}
-                    className="h-11 border-border/50"
+                    className="h-12 text-base border-gray-300"
                     placeholder="Enter amount"
                   />
                 </div>
               ))}
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-border/30">
-                <Button variant="outline" onClick={() => setShowOpeningBalanceDialog(false)} className="h-9 px-4 text-sm border-border/50 hover:bg-muted/50 w-full sm:w-auto">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-300">
+                <Button variant="outline" onClick={() => setShowOpeningBalanceDialog(false)} className="h-10 px-4 text-base border-gray-300 hover:bg-gray-50 w-full sm:w-auto">
                   Cancel
                 </Button>
-                <Button onClick={handleSetOpeningBalances} className="h-9 px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 w-full sm:w-auto">
+                <Button onClick={handleSetOpeningBalances} className="h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white w-full sm:w-auto">
                   Save
                 </Button>
               </div>
@@ -1010,28 +1010,28 @@ const Accounts = () => {
             }
           }}
         >
-          <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto border-border/50 glass-card w-[95vw] sm:w-full shadow-modal">
-            <DialogHeader className="pb-4 border-b border-border/30">
-              <DialogTitle className="text-base sm:text-lg font-semibold">Add Expense Entry</DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+          <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto border-gray-300 bg-white w-[95vw] sm:w-full">
+            <DialogHeader className="pb-4 border-b border-gray-300">
+              <DialogTitle className="text-xl font-semibold text-gray-900">Add Expense Entry</DialogTitle>
+              <DialogDescription className="text-base text-gray-600">
                 Record a new expense entry for today.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-5">
               <div>
-                <Label htmlFor="expense-description" className="text-sm font-medium mb-2 block">Description *</Label>
+                <Label htmlFor="expense-description" className="text-base font-semibold mb-2 block text-gray-900">Description *</Label>
                 <Input
                   id="expense-description"
                   value={newExpense.description}
                   onChange={(e) =>
                     setNewExpense({ ...newExpense, description: e.target.value })
                   }
-                  className="h-11 border-border/50"
+                  className="h-12 text-base border-gray-300"
                   placeholder="Enter expense description"
                 />
               </div>
               <div>
-                <Label htmlFor="expense-property" className="text-sm font-medium mb-2 block">Property (Optional)</Label>
+                <Label htmlFor="expense-property" className="text-base font-semibold mb-2 block text-gray-900">Property (Optional)</Label>
                 <Select
                   value={newExpense.propertyId || "none"}
                   onValueChange={(value) =>
@@ -1041,7 +1041,7 @@ const Accounts = () => {
                     })
                   }
                 >
-                  <SelectTrigger id="expense-property" className="h-11 border-border/50">
+                  <SelectTrigger id="expense-property" className="h-12 text-base border-gray-300">
                     <SelectValue placeholder="Select a property" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1055,7 +1055,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="expense-amount" className="text-sm font-medium mb-2 block">Amount *</Label>
+                <Label htmlFor="expense-amount" className="text-base font-semibold mb-2 block text-gray-900">Amount *</Label>
                 <Input
                   id="expense-amount"
                   type="number"
@@ -1068,17 +1068,17 @@ const Accounts = () => {
                       amount: value === "" ? 0 : parseFloat(value) || 0,
                     });
                   }}
-                  className="h-11 border-border/50"
+                  className="h-12 text-base border-gray-300"
                   placeholder="Enter amount"
                 />
               </div>
               <div>
-                <Label htmlFor="expense-method" className="text-sm font-medium mb-2 block">Payment Method *</Label>
+                <Label htmlFor="expense-method" className="text-base font-semibold mb-2 block text-gray-900">Payment Method *</Label>
                 <Select
                   value={selectedPaymentSource}
                   onValueChange={(value) => setSelectedPaymentSource(value)}
                 >
-                  <SelectTrigger id="expense-method" className="h-11 border-border/50">
+                  <SelectTrigger id="expense-method" className="h-12 text-base border-gray-300">
                     <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1100,18 +1100,18 @@ const Accounts = () => {
                   onChange={(e) =>
                     setNewExpense({ ...newExpense, isPending: e.target.checked })
                   }
-                  className="h-4 w-4 rounded border-border"
+                  className="h-4 w-4 rounded border-gray-300"
                 />
-                <Label htmlFor="is-pending" className="text-sm font-medium cursor-pointer">
+                <Label htmlFor="is-pending" className="text-base font-medium cursor-pointer text-gray-900">
                   Mark as pending payment
                 </Label>
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-border/30">
-                <Button variant="outline" onClick={() => setShowExpenseDialog(false)} className="h-9 px-4 text-sm border-border/50 hover:bg-muted/50 w-full sm:w-auto">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-300">
+                <Button variant="outline" onClick={() => setShowExpenseDialog(false)} className="h-10 px-4 text-base border-gray-300 hover:bg-gray-50 w-full sm:w-auto">
                   Cancel
                 </Button>
-                <Button onClick={handleAddExpense} className="h-9 px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 w-full sm:w-auto">
+                <Button onClick={handleAddExpense} className="h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white w-full sm:w-auto">
                   <span className="hidden sm:inline">Add Entry</span>
                   <span className="sm:hidden">Add</span>
                 </Button>
@@ -1122,84 +1122,86 @@ const Accounts = () => {
 
         {/* Manage Banks Dialog */}
         <Dialog open={showManageBanksDialog} onOpenChange={setShowManageBanksDialog}>
-          <DialogContent className="max-w-3xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto w-[95vw] sm:w-full">
-            <DialogHeader>
-              <DialogTitle className="text-xl sm:text-2xl font-bold">Manage Banks</DialogTitle>
-              <DialogDescription className="text-sm sm:text-base">
+          <DialogContent className="max-w-3xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto border-gray-300 bg-white w-[95vw] sm:w-full">
+            <DialogHeader className="pb-4 border-b border-gray-300">
+              <DialogTitle className="text-xl font-semibold text-gray-900">Manage Banks</DialogTitle>
+              <DialogDescription className="text-base text-gray-600">
                 Add, edit, or remove bank accounts.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 sm:space-y-5">
+            <div className="space-y-5">
               <div className="flex justify-end">
                 <Button
                   onClick={() => {
                     setEditingBank(null);
-                    setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", notes: "" });
+                    setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", balance: 0, notes: "" });
                     setShowBankDialog(true);
                   }}
-                  className="gap-2 shadow-sm text-sm sm:text-base h-9 sm:h-10"
+                  className="gap-2 text-base h-10 px-4 bg-primary hover:bg-primary/90 text-white"
                 >
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">Add New Bank</span>
                   <span className="sm:hidden">Add Bank</span>
                 </Button>
               </div>
-              <div className="border border-border/50 rounded-xl overflow-hidden bg-background">
-                <div className="overflow-x-auto">
-                  <Table>
+              <div className="border border-gray-300 rounded overflow-hidden bg-white">
+                <div className="overflow-x-auto -mx-6 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <div className="overflow-x-auto">
+                      <Table className="min-w-full">
                     <TableHeader>
-                      <TableRow className="bg-muted/30 border-b border-border/50">
-                        <TableHead className="text-sm sm:text-base font-bold min-w-[120px]">Bank Name</TableHead>
-                        <TableHead className="text-sm sm:text-base font-bold min-w-[140px]">Account Number</TableHead>
-                        <TableHead className="text-sm sm:text-base font-bold min-w-[120px]">Branch</TableHead>
-                        <TableHead className="text-sm sm:text-base font-bold min-w-[120px]">Account Type</TableHead>
-                        <TableHead className="text-sm sm:text-base font-bold text-right min-w-[100px]">Actions</TableHead>
+                      <TableRow className="bg-gray-100 border-b border-gray-300">
+                        <TableHead className="text-base font-semibold min-w-[120px] text-gray-900">Bank Name</TableHead>
+                        <TableHead className="text-base font-semibold min-w-[140px] text-gray-900">Account Number</TableHead>
+                        <TableHead className="text-base font-semibold min-w-[120px] text-gray-900">Branch</TableHead>
+                        <TableHead className="text-base font-semibold min-w-[120px] text-gray-900">Account Type</TableHead>
+                        <TableHead className="text-base font-semibold text-right min-w-[100px] text-gray-900">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {banks.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
+                          <TableCell colSpan={5} className="text-center text-gray-600 py-12">
                             <div className="flex flex-col items-center gap-3">
-                              <Building2 className="h-12 w-12 text-muted-foreground/50" />
-                              <p className="text-sm sm:text-base font-medium">No banks added yet</p>
-                              <p className="text-xs sm:text-sm text-muted-foreground">Click "Add New Bank" to get started</p>
+                              <Building2 className="h-12 w-12 text-gray-400" />
+                              <p className="text-base font-medium text-gray-900">No banks added yet</p>
+                              <p className="text-sm text-gray-600">Click "Add New Bank" to get started</p>
                             </div>
                           </TableCell>
                         </TableRow>
                       ) : (
                         banks.map((bank) => (
-                          <TableRow key={bank.id} className="border-b border-border/50 hover:bg-muted/20">
-                            <TableCell className="text-sm sm:text-base font-semibold">{bank.name}</TableCell>
-                            <TableCell className="text-sm sm:text-base text-muted-foreground">
+                          <TableRow key={bank.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <TableCell className="text-base font-semibold text-gray-900">{bank.name}</TableCell>
+                            <TableCell className="text-base text-gray-600">
                               {bank.accountNumber || "-"}
                             </TableCell>
-                            <TableCell className="text-sm sm:text-base text-muted-foreground">
+                            <TableCell className="text-base text-gray-600">
                               {bank.branchName || "-"}
                             </TableCell>
-                            <TableCell className="text-sm sm:text-base text-muted-foreground">
+                            <TableCell className="text-base text-gray-600">
                               {bank.accountType || "-"}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => {
                                     setEditingBank(bank);
                                     setShowBankDialog(true);
                                   }}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 p-0 rounded-lg"
+                                  className="h-9 w-9 p-0 border-gray-300 hover:bg-gray-50"
                                 >
-                                  <Edit2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                  <Edit2 className="h-4 w-4" />
                                 </Button>
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => handleDeleteBank(bank.id)}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
+                                  className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-300"
                                 >
-                                  <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             </TableCell>
@@ -1207,7 +1209,9 @@ const Accounts = () => {
                         ))
                       )}
                     </TableBody>
-                  </Table>
+                      </Table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1219,21 +1223,21 @@ const Accounts = () => {
           setShowBankDialog(open);
           if (!open) {
             setEditingBank(null);
-            setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", notes: "" });
+            setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", balance: 0, notes: "" });
           }
         }}>
-          <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto w-[95vw] sm:w-full">
-            <DialogHeader>
-              <DialogTitle className="text-xl sm:text-2xl font-bold">
+          <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto border-gray-300 bg-white w-[95vw] sm:w-full">
+            <DialogHeader className="pb-4 border-b border-gray-300">
+              <DialogTitle className="text-xl font-semibold text-gray-900">
                 {editingBank ? "Edit Bank" : "Add New Bank"}
               </DialogTitle>
-              <DialogDescription className="text-sm sm:text-base">
+              <DialogDescription className="text-base text-gray-600">
                 {editingBank ? "Update bank information." : "Add a new bank account with details."}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 sm:space-y-5">
+            <div className="space-y-5">
               <div>
-                <Label htmlFor="bank-name" className="text-sm sm:text-base font-semibold mb-2 block">Bank Name *</Label>
+                <Label htmlFor="bank-name" className="text-base font-semibold mb-2 block text-gray-900">Bank Name *</Label>
                 <Input
                   id="bank-name"
                   value={editingBank ? editingBank.name : newBank.name}
@@ -1244,13 +1248,13 @@ const Accounts = () => {
                       setNewBank({ ...newBank, name: e.target.value });
                     }
                   }}
-                  className="text-base sm:text-lg h-11 sm:h-12 border-2"
+                  className="text-base h-12 border-gray-300"
                   placeholder="Enter bank name"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="bank-account" className="text-sm sm:text-base font-semibold mb-2 block">Account Number</Label>
+                <Label htmlFor="bank-account" className="text-base font-semibold mb-2 block text-gray-900">Account Number</Label>
                 <Input
                   id="bank-account"
                   value={editingBank ? editingBank.accountNumber || "" : newBank.accountNumber || ""}
@@ -1261,12 +1265,12 @@ const Accounts = () => {
                       setNewBank({ ...newBank, accountNumber: e.target.value });
                     }
                   }}
-                  className="text-base sm:text-lg h-11 sm:h-12 border-2"
+                  className="text-base h-12 border-gray-300"
                   placeholder="Enter account number"
                 />
               </div>
               <div>
-                <Label htmlFor="bank-branch" className="text-sm sm:text-base font-semibold mb-2 block">Branch Name</Label>
+                <Label htmlFor="bank-branch" className="text-base font-semibold mb-2 block text-gray-900">Branch Name</Label>
                 <Input
                   id="bank-branch"
                   value={editingBank ? editingBank.branchName || "" : newBank.branchName || ""}
@@ -1277,12 +1281,12 @@ const Accounts = () => {
                       setNewBank({ ...newBank, branchName: e.target.value });
                     }
                   }}
-                  className="text-base sm:text-lg h-11 sm:h-12 border-2"
+                  className="text-base h-12 border-gray-300"
                   placeholder="Enter branch name"
                 />
               </div>
               <div>
-                <Label htmlFor="bank-type" className="text-sm sm:text-base font-semibold mb-2 block">Account Type</Label>
+                <Label htmlFor="bank-type" className="text-base font-semibold mb-2 block text-gray-900">Account Type</Label>
                 <Select
                   value={editingBank ? editingBank.accountType || "" : newBank.accountType || ""}
                   onValueChange={(value) => {
@@ -1293,7 +1297,7 @@ const Accounts = () => {
                     }
                   }}
                 >
-                  <SelectTrigger id="bank-type" className="text-base sm:text-lg h-11 sm:h-12 border-2">
+                  <SelectTrigger id="bank-type" className="text-base h-12 border-gray-300">
                     <SelectValue placeholder="Select account type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1308,7 +1312,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="bank-balance" className="text-sm sm:text-base font-semibold mb-2 block">Bank Balance</Label>
+                <Label htmlFor="bank-balance" className="text-base font-semibold mb-2 block text-gray-900">Bank Balance</Label>
                 <Input
                   id="bank-balance"
                   type="number"
@@ -1326,12 +1330,12 @@ const Accounts = () => {
                       setNewBank({ ...newBank, balance: numeric });
                     }
                   }}
-                  className="text-base sm:text-lg h-11 sm:h-12 border-2"
+                  className="text-base h-12 border-gray-300"
                   placeholder="Enter current bank balance"
                 />
               </div>
               <div>
-                <Label htmlFor="bank-notes" className="text-sm sm:text-base font-semibold mb-2 block">Notes</Label>
+                <Label htmlFor="bank-notes" className="text-base font-semibold mb-2 block text-gray-900">Notes</Label>
                 <Input
                   id="bank-notes"
                   value={editingBank ? editingBank.notes || "" : newBank.notes || ""}
@@ -1342,11 +1346,11 @@ const Accounts = () => {
                       setNewBank({ ...newBank, notes: e.target.value });
                     }
                   }}
-                  className="text-base sm:text-lg h-11 sm:h-12 border-2"
+                  className="text-base h-12 border-gray-300"
                   placeholder="Additional notes (optional)"
                 />
               </div>
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-300">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1354,11 +1358,11 @@ const Accounts = () => {
                     setEditingBank(null);
                     setNewBank({ name: "", accountNumber: "", branchName: "", accountType: "", balance: 0, notes: "" });
                   }}
-                  className="shadow-sm w-full sm:w-auto h-9 sm:h-10"
+                  className="w-full sm:w-auto h-10 px-4 text-base border-gray-300 hover:bg-gray-50"
                 >
                   Cancel
                 </Button>
-                <Button onClick={editingBank ? handleUpdateBank : handleAddBank} className="shadow-sm w-full sm:w-auto h-9 sm:h-10">
+                <Button onClick={editingBank ? handleUpdateBank : handleAddBank} className="w-full sm:w-auto h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white">
                   {editingBank ? (
                     <>
                       <span className="hidden sm:inline">Update Bank</span>
@@ -1378,10 +1382,10 @@ const Accounts = () => {
 
         {/* History Dialog */}
         <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
-          <DialogContent className="max-w-4xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto w-[95vw] sm:w-full">
-            <DialogHeader>
-              <DialogTitle className="text-xl sm:text-2xl font-bold">Daily Accounts History</DialogTitle>
-              <DialogDescription className="text-sm sm:text-base">
+          <DialogContent className="max-w-4xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto border-gray-300 bg-white w-[95vw] sm:w-full">
+            <DialogHeader className="pb-4 border-b border-gray-300">
+              <DialogTitle className="text-xl font-semibold text-gray-900">Daily Accounts History</DialogTitle>
+              <DialogDescription className="text-base text-gray-600">
                 View past daily accounts.
               </DialogDescription>
             </DialogHeader>
@@ -1390,29 +1394,29 @@ const Accounts = () => {
                 .filter(log => log.isLocked)
                 .sort((a, b) => b.date.localeCompare(a.date))
                 .map((log) => (
-                  <div key={log.id} className="border border-border/50 rounded-xl p-4 sm:p-6 bg-card shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-border/50">
-                      <h3 className="text-base sm:text-lg font-bold text-foreground">{formatDate(log.date)}</h3>
-                      <span className="text-xs sm:text-sm font-semibold text-muted-foreground">🔒 Closed</span>
+                  <div key={log.id} className="border border-gray-300 rounded p-6 bg-gray-50">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-300">
+                      <h3 className="text-lg font-semibold text-gray-900">{formatDate(log.date)}</h3>
+                      <span className="text-sm font-semibold text-gray-600">🔒 Closed</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Total Expenses</p>
-                        <p className="text-xl font-bold text-foreground">{formatCurrency(log.totalDailyExpenses)}</p>
+                        <p className="text-sm font-semibold text-gray-600 mb-1">Total Expenses</p>
+                        <p className="text-xl font-bold text-gray-900">{formatCurrency(log.totalDailyExpenses)}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Number of Entries</p>
-                        <p className="text-xl font-bold text-foreground">{log.expenses.length}</p>
+                        <p className="text-sm font-semibold text-gray-600 mb-1">Number of Entries</p>
+                        <p className="text-xl font-bold text-gray-900">{log.expenses.length}</p>
                       </div>
                     </div>
                     {Object.keys(log.bankUsage).length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-border/50">
-                        <p className="text-sm font-semibold text-muted-foreground mb-3">Bank Usage</p>
+                      <div className="mt-4 pt-4 border-t border-gray-300">
+                        <p className="text-sm font-semibold text-gray-600 mb-3">Bank Usage</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {Object.entries(log.bankUsage).map(([bank, amount]) => (
-                            <div key={bank} className="p-3 bg-muted/30 rounded-lg border border-border/50">
-                              <p className="text-xs font-semibold text-muted-foreground mb-1">{bank}</p>
-                              <p className="text-base font-bold text-foreground">{formatCurrency(amount)}</p>
+                            <div key={bank} className="p-3 bg-white rounded border border-gray-300">
+                              <p className="text-xs font-semibold text-gray-600 mb-1">{bank}</p>
+                              <p className="text-base font-bold text-gray-900">{formatCurrency(amount)}</p>
                             </div>
                           ))}
                         </div>
@@ -1422,8 +1426,8 @@ const Accounts = () => {
                 ))}
               {dailyLogs.filter(log => log.isLocked).length === 0 && (
                 <div className="text-center py-12">
-                  <Calendar className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-                  <p className="text-base font-medium text-muted-foreground">
+                  <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-base font-medium text-gray-600">
                     No historical accounts available yet.
                   </p>
                 </div>

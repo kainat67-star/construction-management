@@ -105,18 +105,18 @@ const Properties = () => {
 
   return (
     <AppLayout title="">
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header Section */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-300 pb-3 sm:pb-4">
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-1">Properties</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 mb-1 sm:mb-2">Properties</h1>
+            <p className="text-sm sm:text-base text-gray-600">
               Manage your property records and investments
             </p>
           </div>
           <Button 
             onClick={() => setIsModalOpen(true)} 
-            className="gap-2 h-9 px-3 sm:px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+            className="gap-2 h-10 px-4 text-base bg-primary hover:bg-primary/90 text-white"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Add New Property</span>
@@ -125,7 +125,7 @@ const Properties = () => {
         </div>
 
         {/* Property Listing */}
-        <div className="rounded-2xl border border-border/30 bg-card/60 backdrop-blur-xl shadow-lg overflow-hidden">
+        <div className="rounded border border-gray-300 bg-gray-50 overflow-hidden">
           <PropertiesTable properties={properties} onEdit={handleEdit} onDelete={handleDelete} />
         </div>
 
@@ -140,18 +140,18 @@ const Properties = () => {
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={!!deletingProperty} onOpenChange={(open) => !open && setDeletingProperty(null)}>
-          <AlertDialogContent className="border-border/50 glass-card w-[95vw] sm:w-full max-w-md shadow-modal">
-            <AlertDialogHeader className="pb-4 border-b border-border/30">
-              <AlertDialogTitle className="text-base sm:text-lg font-semibold">Delete Property</AlertDialogTitle>
-              <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground">
-                Are you sure you want to delete <strong className="font-medium">{deletingProperty?.name}</strong>? This action cannot be undone.
+          <AlertDialogContent className="border-gray-300 bg-white w-[95vw] sm:w-full max-w-md">
+            <AlertDialogHeader className="pb-4 border-b border-gray-300">
+              <AlertDialogTitle className="text-xl font-semibold text-gray-900">Delete Property</AlertDialogTitle>
+              <AlertDialogDescription className="text-base text-gray-600">
+                Are you sure you want to delete <strong className="font-semibold">{deletingProperty?.name}</strong>? This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="pt-4 flex-col-reverse sm:flex-row gap-2">
-              <AlertDialogCancel className="h-9 px-4 text-sm border-border/50 hover:bg-muted/50 w-full sm:w-auto">Cancel</AlertDialogCancel>
+            <AlertDialogFooter className="pt-4 flex-col-reverse sm:flex-row gap-3">
+              <AlertDialogCancel className="h-10 px-4 text-base border-gray-300 hover:bg-gray-50 w-full sm:w-auto">Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={confirmDelete}
-                className="h-9 px-4 text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/20 w-full sm:w-auto"
+                className="h-10 px-4 text-base bg-red-600 text-white hover:bg-red-700 w-full sm:w-auto"
               >
                 Delete
               </AlertDialogAction>

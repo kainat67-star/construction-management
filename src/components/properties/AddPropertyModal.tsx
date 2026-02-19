@@ -216,12 +216,12 @@ export function AddPropertyModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl w-[95vw] h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col p-0 sm:p-6 gap-0 sm:gap-0 overflow-hidden top-0 sm:top-[50%] left-0 sm:left-[50%] translate-x-0 sm:translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] rounded-none sm:rounded-2xl border-border/50 glass-card shadow-modal">
-        <DialogHeader className="px-6 sm:px-6 pt-6 sm:pt-6 pb-4 sm:pb-4 flex-shrink-0 border-b border-border/30">
-          <DialogTitle className="text-lg font-semibold">
+      <DialogContent className="max-w-5xl w-[95vw] sm:w-[90vw] md:w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col p-0 sm:p-4 md:p-6 gap-0 overflow-hidden top-0 sm:top-[50%] left-0 sm:left-[50%] translate-x-0 sm:translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] rounded-none sm:rounded-lg border-gray-300 bg-white">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0 border-b border-gray-300">
+          <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">
             {isEditMode ? "Edit Property" : "Add New Property"}
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="text-sm sm:text-base text-gray-600">
             {isEditMode 
               ? "Update property details and information"
               : "Enter property information to get started"}
@@ -230,19 +230,19 @@ export function AddPropertyModal({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
-            <div className="flex-1 overflow-y-auto px-6 sm:px-6 py-4 sm:py-6 space-y-6 pb-8 sm:pb-10">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 md:py-6 space-y-4 sm:space-y-5 md:space-y-6 pb-6 sm:pb-8 md:pb-10">
             {/* Row 1: Property Name & Property Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Property Name</FormLabel>
+                    <FormLabel className="text-base font-semibold text-gray-900">Property Name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter property name"
-                        className="h-11"
+                        className="h-12 text-base border-gray-300"
                         {...field}
                       />
                     </FormControl>
@@ -256,10 +256,10 @@ export function AddPropertyModal({
                 name="propertyType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Property Type</FormLabel>
+                    <FormLabel className="text-base font-semibold text-gray-900">Property Type</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-11">
+                        <SelectTrigger className="h-12 text-base border-gray-300">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                       </FormControl>
@@ -278,17 +278,17 @@ export function AddPropertyModal({
             </div>
 
             {/* Row 2: Location & Project Start Date */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
               <FormField
                 control={form.control}
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Location / Area</FormLabel>
+                    <FormLabel className="text-base font-semibold text-gray-900">Location / Area</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter location"
-                        className="h-11"
+                        className="h-12 text-base border-gray-300"
                         {...field}
                       />
                     </FormControl>
@@ -338,7 +338,7 @@ export function AddPropertyModal({
             </div>
 
             {/* Row 3: Initial Investment Amount & Payment Method */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
               <FormField
                 control={form.control}
                 name="purchasePrice"
@@ -388,7 +388,7 @@ export function AddPropertyModal({
 
             {/* Row 4: Bank Selection (conditional) */}
             {paymentMethod === "Bank" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
                 <FormField
                   control={form.control}
                   name="bankName"
@@ -617,17 +617,17 @@ export function AddPropertyModal({
             </div>
 
             {/* Notes Section - Full Width */}
-            <div className="pt-4 border-t border-border/30">
+            <div className="pt-4 border-t border-gray-300">
             <FormField
               control={form.control}
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="text-sm font-medium mb-2 block">Notes / Remarks</FormLabel>
+                    <FormLabel className="text-base font-semibold mb-2 block text-gray-900">Notes / Remarks</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Enter any additional notes or remarks..."
-                        className="min-h-[100px] max-h-[200px] text-sm resize-y"
+                        className="min-h-[100px] max-h-[200px] text-base resize-y border-gray-300"
                       rows={4}
                       {...field}
                     />
@@ -639,16 +639,16 @@ export function AddPropertyModal({
             </div>
 
             </div>
-            <DialogFooter className="px-6 sm:px-6 pt-4 pb-6 sm:pb-6 gap-3 flex-shrink-0 border-t border-border/30 bg-card/60 backdrop-blur-sm">
+            <DialogFooter className="px-4 sm:px-6 pt-3 sm:pt-4 pb-4 sm:pb-6 gap-2 sm:gap-3 flex-shrink-0 border-t border-gray-300 bg-gray-50">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
-                className="w-full sm:w-auto h-10 px-4 text-sm border-border/50 hover:bg-muted/50"
+                className="w-full sm:w-auto h-10 sm:h-11 px-4 text-sm sm:text-base border-gray-300 hover:bg-gray-50"
               >
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto h-10 px-4 text-sm bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
+              <Button type="submit" className="w-full sm:w-auto h-10 sm:h-11 px-4 text-sm sm:text-base bg-primary hover:bg-primary/90 text-white">
                 {isEditMode ? "Update" : "Save"}
               </Button>
             </DialogFooter>

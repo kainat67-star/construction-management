@@ -108,23 +108,17 @@ export function AppLayout({ children, title }: AppLayoutProps) {
   }, [isTransitioning, transitionDirection, location.pathname]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header title={title} />
       <main
         {...touchHandlers}
         className={cn(
-          "p-3 sm:p-4 md:p-5 lg:p-6 xl:p-8 max-w-[1920px] mx-auto min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] relative"
+          "p-3 sm:p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-4.5rem)] relative w-full overflow-x-hidden"
         )}
       >
-        <div
-          key={location.pathname}
-          className={cn(
-            "w-full",
-            transitionClass
-          )}
-        >
+        <div className="w-full">
           {children}
-      </div>
+        </div>
       </main>
     </div>
   );

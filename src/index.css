@@ -2,125 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Premium SaaS Dashboard Design System
-   Modern fintech/admin dashboard style
-   Dark theme with gradients and glassmorphism
-   All colors in HSL format
+/* Simple, Clean, Professional Design System
+   Traditional banking/accounting website style
+   White background, light gray sections, simple blue primary
+   No dark theme, gradients, glassmorphism, or heavy shadows
 */
 
 @layer base {
   :root {
-    /* Core backgrounds - Deep dark with purple/orange gradient */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Core backgrounds - White */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
 
-    /* Cards & surfaces - Glassmorphism effect */
-    --card: 240 10% 6%;
-    --card-foreground: 0 0% 98%;
+    /* Cards & surfaces - Light gray */
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
 
     /* Popover */
-    --popover: 240 10% 6%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary - Purple accent (matching inspiration) */
-    --primary: 270 91% 65%;
+    /* Primary - Simple blue */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Subtle dark */
-    --secondary: 240 4.8% 9.5%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary - Light gray */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
 
-    /* Muted - Soft backgrounds */
-    --muted: 240 3.7% 8%;
-    --muted-foreground: 240 5% 64.9%;
+    /* Muted - Light gray backgrounds */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Accent - Orange (matching inspiration) */
-    --accent: 25 95% 53%;
+    /* Accent - Same as primary for consistency */
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
 
-    /* Destructive */
-    --destructive: 0 72% 51%;
+    /* Destructive - Simple red */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success */
+    /* Success - Simple green */
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning */
+    /* Warning - Simple amber */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Borders & inputs - Very subtle */
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 270 91% 65%;
+    /* Borders & inputs - Light gray */
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 217 91% 60%;
 
-    --radius: 1rem; /* Rounded corners (xl) */
+    --radius: 0.375rem; /* Simple rounded corners */
 
-    /* Sidebar - Slim, modern */
-    --sidebar-background: 240 5.9% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 270 91% 65%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 270 91% 65%;
-    --sidebar-muted: 240 3.7% 8%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 85%;
+    --sidebar-ring: 217 91% 60%;
+    --sidebar-muted: 0 0% 96%;
 
-    /* Chart colors - Purple and orange theme */
-    --chart-1: 270 91% 65%;
-    --chart-2: 25 95% 53%;
-    --chart-3: 142 76% 36%;
-    --chart-4: 0 72% 51%;
-    --chart-5: 280 67% 60%;
-    --chart-6: 195 85% 55%;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 6%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 6%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 270 91% 65%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 240 4.8% 9.5%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 8%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 25 95% 53%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 270 91% 65%;
-
-    --sidebar-background: 240 5.9% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 270 91% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 270 91% 65%;
-    --sidebar-muted: 240 3.7% 8%;
+    /* Chart colors - Simple, muted colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 217 70% 50%;
+    --chart-6: 217 50% 45%;
   }
 }
 
@@ -130,126 +84,61 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-white text-foreground;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(251, 146, 60, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(251, 146, 60, 0.1) 0px, transparent 50%);
-    background-attachment: fixed;
+    background-color: #ffffff;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
   }
 
-  /* Typography hierarchy */
+  /* Prevent horizontal scrolling */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Typography hierarchy - Large, readable text */
   h1 {
-    @apply text-2xl sm:text-3xl font-semibold tracking-tight;
-    line-height: 1.2;
+    @apply text-2xl sm:text-3xl font-semibold;
+    line-height: 1.3;
+    color: #1a1a1a;
   }
 
   h2 {
-    @apply text-xl sm:text-2xl font-semibold tracking-tight;
-    line-height: 1.3;
+    @apply text-xl sm:text-2xl font-semibold;
+    line-height: 1.4;
+    color: #1a1a1a;
   }
 
   h3 {
     @apply text-lg sm:text-xl font-semibold;
     line-height: 1.4;
+    color: #1a1a1a;
   }
 
   h4, h5, h6 {
     @apply font-semibold;
-    line-height: 1.4;
+    line-height: 1.5;
+    color: #1a1a1a;
   }
 
   /* Table improvements */
   table {
-    @apply text-sm;
+    @apply text-base;
   }
 
   th {
-    @apply font-medium;
-    letter-spacing: 0.01em;
+    @apply font-semibold;
   }
 
   td {
     @apply py-3;
-  }
-}
-
-@layer utilities {
-  /* Shadow utilities - Soft, modern shadows */
-  .shadow-card {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.12), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  }
-
-  .shadow-card-hover {
-    box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  }
-
-  .shadow-modal {
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
-  }
-
-  /* Glassmorphism effect */
-  .glass {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .glass-card {
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  /* Page transition animations */
-  @keyframes slide-in-right {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes slide-in-left {
-    from {
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* Smooth page transition */
-  .page-transition-enter {
-    animation: slide-in-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .page-transition-enter-left {
-    animation: slide-in-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Smooth fade for non-swipe navigations */
-  .page-fade-enter {
-    animation: fade-in 0.25s ease-out;
   }
 }
